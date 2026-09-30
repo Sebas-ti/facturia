@@ -37,6 +37,7 @@ cd backend && uv run pytest                  # tests
 cd backend && uv run ruff check . && uv run mypy app
 cd backend && uv run alembic upgrade head     # aplica migraciones a Postgres
 cd backend && PYTHONPATH=. uv run python scripts/seed.py  # carga data/ a la BD
+cd backend && uv run uvicorn app.main:app --reload --port 8000  # API (llama a Azure real en /api/invoices)
 uv run --project backend python evals/run_evals.py --mock  # evals sin gastar créditos de Azure
 uv run --project backend python evals/run_evals.py --live --ids F01,F15  # evals con Azure real (gasta créditos; usar --ids)
 cd frontend && npm install                   # dependencias del frontend
