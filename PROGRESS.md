@@ -5,14 +5,14 @@
 ## Estado actual
 - **Fase:** 1 · Base
 - **Última herramienta usada:** Claude Code
-- **Siguiente paso:** Tarea 1.5
+- **Siguiente paso:** Tarea 1.6
 
 ## Fase 1 · Base (días 1–3)
 - [x] **1.1 Esqueleto backend:** `backend/` con `uv`, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, sqlalchemy, alembic, psycopg, pytest, ruff, mypy), `app/main.py` con `GET /api/health` y su test.
 - [x] **1.2 Docker Compose:** servicios `db` (Postgres 16) y `azurite`; `.env.example`; `app/config.py` con pydantic-settings.
 - [x] **1.3 Esquemas Pydantic:** `app/schemas/` con `InvoiceLine`, `BankAccount`, `ExtractedInvoice`, `Finding`, `FindingCode` (enum), `Decision` según spec §3–4. Test: los `esperado` de `data/ground_truth.json` validan contra `ExtractedInvoice` (mapeando nombres de campos).
 - [x] **1.4 Regla NIT:** `app/rules/nit.py` (`nit_check_digit`, `validate_nit`) con tests, incluidos los NITs de `data/proveedores.csv`.
-- [ ] **1.5 Regla aritmética:** `app/rules/arithmetic.py` → lista de `Finding` (`ARITHMETIC_ERROR`), tolerancia $1. Test con F10 (falla) y F01 (pasa).
+- [x] **1.5 Regla aritmética:** `app/rules/arithmetic.py` → lista de `Finding` (`ARITHMETIC_ERROR`), tolerancia $1. Test con F10 (falla) y F01 (pasa).
 - [ ] **1.6 Reglas de matching y riesgo:** `app/rules/matching.py` (`PRICE_MISMATCH` 2 %, `QTY_EXCEEDS_RECEIPT` acumulado, `MISSING_PO`) y `app/rules/risk.py` (`UNKNOWN_SUPPLIER`, `DUPLICATE_INVOICE`, `BANK_ACCOUNT_CHANGED`). Funciones puras que reciben los datos maestros como parámetros.
 - [ ] **1.7 Decisor:** `app/rules/decision.py` con la matriz de spec §4.2 (incluye `AMOUNT_OVER_THRESHOLD`).
 - [ ] **1.8 Test de integración de reglas:** recorrer F01→F15 de `ground_truth.json` aplicando todas las reglas; debe dar 15/15 en hallazgos y decisión.
@@ -36,3 +36,4 @@
 | 2026-09-30 | Claude Code | Tarea 1.2: `docker-compose.yml` (db + azurite), `.env.example` (creado por el usuario), `app/config.py` con pydantic-settings + tests. | Docker recién instalado por el usuario; motor no respondía aún, falta confirmar `docker compose up -d db azurite`. |
 | 2026-09-30 | Claude Code | Tarea 1.3: `app/schemas/` (`InvoiceLine`, `BankAccount`, `ExtractedInvoice`, `Finding`, `FindingCode` con los 12 códigos, `Decision`). Test parametrizado: las 15 `esperado` de `ground_truth.json` validan contra `ExtractedInvoice`. | 18/18 tests, ruff y mypy en verde. |
 | 2026-09-30 | Claude Code | Tarea 1.4: `app/rules/nit.py` (`nit_check_digit`, `validate_nit`, algoritmo módulo 11). Tests con los 6 NITs de `proveedores.csv`, el NIT comprador de `ground_truth.json`, el caso F11 (DV impreso incorrecto) y validaciones de entrada. | 29/29 tests, ruff y mypy en verde. |
+| 2026-09-30 | Claude Code | Tarea 1.5: `app/rules/arithmetic.py` (`check_arithmetic`, tolerancia $1, un solo `Finding` `ARITHMETIC_ERROR` con todos los mismatches en `evidence`). Extraje el mapeo de `ground_truth.json` a `tests/ground_truth.py` (compartido con `test_schemas.py`). | 35/35 tests, ruff y mypy en verde. |
