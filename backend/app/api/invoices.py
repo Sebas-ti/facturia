@@ -40,6 +40,7 @@ from app.schemas.invoice import (
     ThreeWayMatchLine,
 )
 from app.schemas.review import ReviewCreate, ReviewResponse
+from app.services.auth import require_api_key
 from app.services.blob import BlobStorageClient
 from app.services.checkpoint import build_checkpointer
 from app.services.doc_intelligence import AzureDocumentIntelligenceClient
@@ -197,7 +198,7 @@ def list_invoices(
     )
 
 
-@router.post("", status_code=202)
+@router.post("", status_code=202, dependencies=[Depends(require_api_key)])
 async def create_invoice(file: UploadFile, background_tasks: BackgroundTasks) -> dict[str, str]:
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=422, detail="El archivo debe ser un PDF.")

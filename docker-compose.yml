@@ -25,6 +25,37 @@ services:
     volumes:
       - azurite_data:/data
 
+  api:
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    environment:
+      # Override the host-facing defaults in .env (localhost) with the
+      # in-network service names — everything else (Azure keys, API_KEY)
+      # still comes from .env via env_file above.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-facturia}:${POSTGRES_PASSWORD:-facturia}@db:5432/${POSTGRES_DB:-facturia}
+      AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      azurite:
+        condition: service_started
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        # Same shared secret as the backend's API_KEY (PROGRESS.md 5.1
+        # decision: one key for both the web and the Power Automate flow).
+        VITE_API_KEY: ${API_KEY:-change-me}
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
 volumes:
   db_data:
   azurite_data:

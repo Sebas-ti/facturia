@@ -84,27 +84,12 @@ def get_metrics(db: Session = Depends(get_db)) -> MetricsResponse:  # noqa: B008
     system_hours = total_processing_time_ms / 3_600_000.0
     estimated_hours_saved = max(0.0, round(manual_hours - system_hours, 2))
 
-    # Total AI cost
-    cost_val = db.scalar(
+    # Total AI cost: only real, measured cost (Invoice.cost_usd). We don't
+    # fabricate an estimate from token counts/guessed pricing when it's
+    # missing — an unmeasured cost is reported as 0, not invented.
+    total_ai_cost_usd = db.scalar(
         select(func.coalesce(func.sum(Invoice.cost_usd), Decimal(0)))
-    )
-    if cost_val is None or cost_val == 0:
-        tokens_in = (
-            db.scalar(select(func.coalesce(func.sum(AgentRun.tokens_in), 0))) or 0
-        )
-        tokens_out = (
-            db.scalar(select(func.coalesce(func.sum(AgentRun.tokens_out), 0))) or 0
-        )
-        if tokens_in > 0 or tokens_out > 0 or processed_invoices > 0:
-            doc_intel = Decimal("0.0100") * Decimal(processed_invoices)
-            llm = (Decimal(tokens_in) * Decimal("0.00000015")) + (
-                Decimal(tokens_out) * Decimal("0.00000060")
-            )
-            cost_val = round(doc_intel + llm, 4)
-        else:
-            cost_val = Decimal("0.0000")
-
-    total_ai_cost_usd = Decimal(str(cost_val))
+    ) or Decimal(0)
 
     # Decisions breakdown
     aprobar_count = (

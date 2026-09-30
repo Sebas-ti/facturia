@@ -375,6 +375,90 @@ def render_report(
     return "\n".join(lines) + "\n"
 
 
+def build_report_data(
+    field_tallies: dict[str, FieldTally],
+    finding_tallies: dict[str, FindingTally],
+    decision_tally: DecisionTally,
+    results: list[InvoiceResult],
+    *,
+    live: bool,
+) -> dict[str, Any]:
+    """Structured twin of `render_report`'s Markdown, written as JSON so the
+    API (`app/services/eval_parser.py`) reads real data instead of
+    regex-parsing prose — AGENTS.md rule 2 in spirit: don't parse free text
+    for something a page depends on."""
+    mode_note = (
+        "Modo `--live`: Azure Document Intelligence + Azure OpenAI reales (Postgres/Azurite "
+        "locales en ambos modos)."
+        if live
+        else "Modo `--mock`, sin llamadas a Azure (Postgres/Azurite locales)."
+    )
+
+    extraction_accuracy = [
+        {
+            "field": name,
+            "precision_pct": round(tally.precision * 100, 1),
+            "hits": tally.matches,
+            "total": tally.total,
+        }
+        for name, tally in field_tallies.items()
+    ]
+
+    findings_accuracy = [
+        {
+            "code": code,
+            "precision_pct": round(tally.precision * 100, 1),
+            "recall_pct": round(tally.recall * 100, 1),
+            "tp": tally.true_positives,
+            "fp": tally.false_positives,
+            "fn": tally.false_negatives,
+        }
+        for code, tally in finding_tallies.items()
+        if not (tally.true_positives == tally.false_positives == tally.false_negatives == 0)
+    ]
+
+    confusion_rows = [
+        {
+            "expected": expected_decision,
+            "aprobar": decision_tally.confusion.get((expected_decision, "APROBAR"), 0),
+            "revision": decision_tally.confusion.get((expected_decision, "REVISION"), 0),
+            "rechazar": decision_tally.confusion.get((expected_decision, "RECHAZAR"), 0),
+        }
+        for expected_decision in DECISIONS
+    ]
+
+    invoice_cases = [
+        {
+            "invoice_id": r.factura_id,
+            "status": "OK" if r.all_fields_match else "FALLA",
+            "detail": r.error or ("; ".join(r.mismatches) if r.mismatches else ""),
+        }
+        for r in results
+    ]
+
+    passed = sum(1 for r in results if r.all_fields_match)
+
+    return {
+        "title": "Evals del pipeline completo",
+        "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "mode": "live" if live else "mock",
+        "summary": f"Grafo completo (docs/spec.md §9): extracción, hallazgos y decisión. {mode_note}",
+        "overall_accuracy_pct": round(decision_tally.accuracy * 100, 1),
+        "total_cases": len(results),
+        "successful_cases": passed,
+        "extraction_accuracy": extraction_accuracy,
+        "findings_accuracy": findings_accuracy,
+        "confusion_matrix": {
+            "labels": list(DECISIONS),
+            "rows": confusion_rows,
+            "accuracy_pct": round(decision_tally.accuracy * 100, 1),
+            "correct": decision_tally.correct,
+            "total": decision_tally.total,
+        },
+        "invoice_cases": invoice_cases,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -419,6 +503,7 @@ def main() -> int:
             db.commit()
 
     report = render_report(field_tallies, finding_tallies, decision_tally, results, live=args.live)
+    report_data = build_report_data(field_tallies, finding_tallies, decision_tally, results, live=args.live)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     # --live report filenames include the timestamp and the ids run: --live
     # calls cost real money, so two separate runs on the same day must not
@@ -430,6 +515,9 @@ def main() -> int:
     else:
         report_path = REPORTS_DIR / f"{datetime.now(UTC).date().isoformat()}.md"
     report_path.write_text(report, encoding="utf-8")
+    report_path.with_suffix(".json").write_text(
+        json.dumps(report_data, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
 
     print(report)
     print(f"Reporte guardado en {report_path.relative_to(REPO_ROOT)}")

@@ -1,3 +1,4 @@
+import json
 import re
 from pathlib import Path
 
@@ -29,6 +30,46 @@ def parse_report_file(file_path: Path, is_latest: bool = False) -> EvalReportDet
     filename = file_path.name
     report_id = file_path.stem
 
+    json_path = file_path.with_suffix(".json")
+    if json_path.exists():
+        return _parse_from_json(json_path, content, filename, report_id)
+    return _parse_from_markdown(content, filename, report_id)
+
+
+def _parse_from_json(json_path: Path, raw_markdown: str, filename: str, report_id: str) -> EvalReportDetail:
+    """`evals/run_evals.py` writes this JSON next to the `.md` report — real
+    structured data, not something inferred by matching prose. Reports
+    generated before this existed (no `.json` sibling) fall back to
+    `_parse_from_markdown` below."""
+    data = json.loads(json_path.read_text(encoding="utf-8"))
+    return EvalReportDetail(
+        id=report_id,
+        filename=filename,
+        title=data["title"],
+        generated_at=data["generated_at"],
+        mode=data["mode"],
+        summary=data["summary"],
+        overall_accuracy_pct=data["overall_accuracy_pct"],
+        total_cases=data["total_cases"],
+        successful_cases=data["successful_cases"],
+        raw_markdown=raw_markdown,
+        extraction_accuracy=[FieldAccuracyItem(**f) for f in data["extraction_accuracy"]],
+        findings_accuracy=[FindingAccuracyItem(**f) for f in data["findings_accuracy"]],
+        confusion_matrix=ConfusionMatrixData(
+            labels=data["confusion_matrix"]["labels"],
+            rows=[ConfusionMatrixRow(**r) for r in data["confusion_matrix"]["rows"]],
+            accuracy_pct=data["confusion_matrix"]["accuracy_pct"],
+            correct=data["confusion_matrix"]["correct"],
+            total=data["confusion_matrix"]["total"],
+        ),
+        invoice_cases=[InvoiceCaseResult(**c) for c in data["invoice_cases"]],
+    )
+
+
+def _parse_from_markdown(content: str, filename: str, report_id: str) -> EvalReportDetail:
+    """Legacy path for reports generated before `run_evals.py` also wrote a
+    `.json` companion (`2026-09-30.md`, `2026-09-30-live-F15.md`). Regex over
+    the Markdown prose — fragile by nature, kept only for those old files."""
     # 1. Header / Title
     title_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
     title = title_match.group(1).strip() if title_match else "Reporte de Evaluación"

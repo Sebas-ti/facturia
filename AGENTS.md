@@ -31,7 +31,8 @@ frontend/   evals/   data/   docs/   scripts/   automation/   infra/
 
 ## Comandos
 ```bash
-docker compose up -d db azurite              # servicios locales
+docker compose up -d db azurite              # servicios locales (dev normal: backend/frontend corren fuera de Docker)
+docker compose up -d --build                 # stack completo en contenedores (db, azurite, api, web) — requiere .env en la raíz
 cd backend && uv sync                        # dependencias
 cd backend && uv run pytest                  # tests
 cd backend && uv run ruff check . && uv run mypy app

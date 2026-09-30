@@ -13,11 +13,19 @@ import type { MetricsResponse } from '../types/metrics'
 
 const API_BASE = '/api'
 
+// Same shared secret the Power Automate flow uses (docs/spec.md §6) — there's
+// no web login yet, so this endpoint accepts either caller with this one key.
+const API_KEY = import.meta.env.VITE_API_KEY as string | undefined
+
 export async function uploadInvoice(file: File): Promise<{ invoiceId: string }> {
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await fetch(`${API_BASE}/invoices`, { method: 'POST', body: formData })
+  const response = await fetch(`${API_BASE}/invoices`, {
+    method: 'POST',
+    headers: API_KEY ? { 'X-API-Key': API_KEY } : undefined,
+    body: formData,
+  })
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { detail?: string } | null
     throw new Error(body?.detail ?? `Error al subir la factura (${response.status})`)

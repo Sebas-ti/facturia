@@ -13,11 +13,13 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 import app.api.invoices as invoices_module
+from app.config import settings
 from app.db.models import Invoice
 from app.db.session import SessionLocal
 from app.main import app
 
 client = TestClient(app)
+AUTH_HEADERS = {"X-API-Key": settings.api_key}
 
 
 @pytest.fixture
@@ -36,7 +38,9 @@ def no_real_pipeline(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_rejects_non_pdf_content_type() -> None:
     response = client.post(
-        "/api/invoices", files={"file": ("factura.txt", b"hola", "text/plain")}
+        "/api/invoices",
+        files={"file": ("factura.txt", b"hola", "text/plain")},
+        headers=AUTH_HEADERS,
     )
     assert response.status_code == 422
 
@@ -44,14 +48,18 @@ def test_rejects_non_pdf_content_type() -> None:
 def test_rejects_oversized_file() -> None:
     oversized = b"%PDF-1.4" + b"0" * invoices_module.MAX_UPLOAD_BYTES
     response = client.post(
-        "/api/invoices", files={"file": ("factura.pdf", oversized, "application/pdf")}
+        "/api/invoices",
+        files={"file": ("factura.pdf", oversized, "application/pdf")},
+        headers=AUTH_HEADERS,
     )
     assert response.status_code == 422
 
 
 def test_accepts_a_pdf_and_creates_a_placeholder_invoice(db: Session) -> None:
     response = client.post(
-        "/api/invoices", files={"file": ("factura.pdf", b"%PDF-1.4 fake", "application/pdf")}
+        "/api/invoices",
+        files={"file": ("factura.pdf", b"%PDF-1.4 fake", "application/pdf")},
+        headers=AUTH_HEADERS,
     )
 
     assert response.status_code == 202
