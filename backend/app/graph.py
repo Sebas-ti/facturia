@@ -50,6 +50,8 @@ from app.services.explain import DecisionExplainerClient
 from app.services.llm import InvoiceLLMClient
 from app.services.tracing import traced
 
+GRAPH_NODE_ORDER = ("ingest", "extract", "validate", "match", "risk", "decide", "human_review")
+
 
 class InvoiceState(TypedDict):
     invoice_id: UUID

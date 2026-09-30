@@ -29,5 +29,10 @@ class Settings(BaseSettings):
     azure_openai_deployment: str = "gpt-4o"
     azure_openai_api_version: str = "2024-08-01-preview"
 
+    # Vite's dev server proxies /api to this process, so the browser never
+    # calls it cross-origin locally; kept for when frontend/backend are
+    # deployed separately (Static Web Apps + Container Apps, spec.md §2).
+    cors_origins: list[str] = ["http://localhost:5173"]
+
 
 settings = Settings()

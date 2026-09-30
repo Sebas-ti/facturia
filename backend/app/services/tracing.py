@@ -16,6 +16,7 @@ from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from typing import Any
 
+from langgraph.errors import GraphInterrupt
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -38,7 +39,22 @@ def traced[StateT: Mapping[str, Any]](
     def wrapper(state: StateT) -> dict[str, Any]:
         started_at = datetime.now(UTC)
         start = time.perf_counter()
-        output = node(state)
+        try:
+            output = node(state)
+        except GraphInterrupt:
+            duration_ms = round((time.perf_counter() - start) * 1000)
+            db.add(
+                AgentRun(
+                    invoice_id=state["invoice_id"],
+                    node=node_name,
+                    started_at=started_at,
+                    duration_ms=duration_ms,
+                    output={"status": "paused_for_review", "interrupt": True},
+                )
+            )
+            db.commit()
+            raise
+
         duration_ms = round((time.perf_counter() - start) * 1000)
 
         db.add(

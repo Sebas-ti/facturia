@@ -131,3 +131,87 @@ def test_trace_true_writes_one_agent_run_row_per_node(db: Session) -> None:
         db.execute(delete(AgentRun).where(AgentRun.invoice_id == invoice_id))
         db.execute(delete(Invoice).where(Invoice.id == invoice_id))
         db.commit()
+
+
+def test_trace_true_records_interrupted_human_review_node(db: Session) -> None:
+    from app.services.checkpoint import build_checkpointer
+
+    pdf_bytes = (DATA_DIR / "facturas" / "F01_FEPC-1045.pdf").read_bytes()
+    file_hash = hashlib.sha256(pdf_bytes).hexdigest()
+    raw = _raw_f01().model_copy(
+        update={
+            "supplier_nit": _field("999999999-1"),
+            "supplier_name": _field("Proveedor Desconocido S.A.S."),
+        }
+    )
+    doc_intelligence = FixtureDocumentIntelligenceClient({file_hash: raw})
+
+    invoice_id = uuid4()
+    db.add(
+        Invoice(
+            id=invoice_id,
+            file_hash="pending",
+            blob_url="pending",
+            status="PROCESSING",
+            supplier_id=None,
+            invoice_number="pending",
+            total=Decimal(0),
+        )
+    )
+    db.commit()
+
+    with build_checkpointer() as checkpointer:
+        graph = build_graph(
+            db=db,
+            doc_intelligence=doc_intelligence,
+            llm=MockInvoiceLLMClient(),
+            blob=BlobStorageClient(),
+            explainer=MockDecisionExplainerClient(),
+            checkpointer=checkpointer,
+            trace=True,
+        )
+
+        initial_state: GraphState = {
+            "invoice_id": invoice_id,
+            "file_hash": "",
+            "is_scanned": False,
+            "extracted": None,
+            "field_confidence": {},
+            "findings": [],
+            "decision": None,
+            "explanation": None,
+            "supplier_email_draft": None,
+            "pdf_bytes": pdf_bytes,
+            "blob_url": "",
+        }
+        config = {"configurable": {"thread_id": str(invoice_id)}}
+
+        try:
+            paused = graph.invoke(initial_state, config=config)
+            assert paused.get("__interrupt__")
+            assert paused["decision"] == "REVISION"
+
+            runs = db.scalars(
+                select(AgentRun)
+                .where(AgentRun.invoice_id == invoice_id)
+                .order_by(AgentRun.started_at)
+            ).all()
+
+            assert [r.node for r in runs] == [
+                "ingest",
+                "extract",
+                "validate",
+                "match",
+                "risk",
+                "decide",
+                "human_review",
+            ]
+            hr_run = next(r for r in runs if r.node == "human_review")
+            assert hr_run.output is not None
+            assert hr_run.output.get("status") == "paused_for_review"
+            assert hr_run.output.get("interrupt") is True
+        finally:
+            db.execute(delete(AgentRun).where(AgentRun.invoice_id == invoice_id))
+            db.execute(delete(Invoice).where(Invoice.id == invoice_id))
+            db.commit()
+

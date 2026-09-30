@@ -20,6 +20,7 @@ dependencies = [
     "pypdf>=5.0",
     "azure-storage-blob>=12.20",
     "langgraph-checkpoint-postgres>=2.0",
+    "python-multipart>=0.0.12",
 ]
 
 [tool.uv]
