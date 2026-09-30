@@ -23,7 +23,11 @@ LAYOUT_BY_NIT = {
 }
 
 DEFAULT_CONFIDENCE = 0.95
-SCANNED_CONFIDENCE = 0.70  # F15 is a noisy scan; see data/README.md
+# F15 is a noisy scan (data/README.md), so a bit lower than a clean native
+# PDF — but still above the 0.80 LOW_CONFIDENCE_EXTRACTION threshold
+# (app/rules/confidence.py): F15's documented expected decision is APROBAR,
+# i.e. this scan is meant to be hard for OCR but not actually fail it.
+SCANNED_CONFIDENCE = 0.85
 
 # No-OC placeholder text per layout (scripts/generate_data.py draw()).
 _NO_PO_TEXT = {"A": "—", "B": "—", "C": "N/A"}

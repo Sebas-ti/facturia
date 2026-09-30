@@ -21,7 +21,7 @@ Empresa compradora: **Distribuciones Andinas Demo S.A.S.** (NIT 901555321-1).
 | F01–F06 | Limpias, cuadran con OC y recepción | APROBAR |
 | F07 | Precio del switch 5 % por encima de la OC | REVISION · `PRICE_MISMATCH` |
 | F08 | Factura 10 tóners, solo se recibieron 6 | REVISION · `QTY_EXCEEDS_RECEIPT` |
-| F09 | Duplicado de F01 (mismo número y proveedor, otro archivo) | RECHAZAR · `DUPLICATE_INVOICE` |
+| F09 | Duplicado de F01 (mismo número y proveedor, otro archivo); acumula la misma cantidad de F01 contra la misma OC | RECHAZAR · `DUPLICATE_INVOICE`, `QTY_EXCEEDS_RECEIPT` |
 | F10 | IVA impreso mal calculado, el total no cuadra | RECHAZAR · `ARITHMETIC_ERROR` |
 | F11 | DV del NIT impreso incorrecto | REVISION · `INVALID_NIT_DV` |
 | F12 | Proveedor que no existe en el maestro y sin OC | REVISION · `UNKNOWN_SUPPLIER`, `MISSING_PO` |

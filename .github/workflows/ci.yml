@@ -23,10 +23,22 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite:latest
+        ports:
+          - 10000:10000
+          - 10001:10001
+          - 10002:10002
 
     defaults:
       run:
         working-directory: backend
+
+    env:
+      # Matches app.config.settings' defaults (docker-compose.yml's local
+      # values), so no per-step overrides needed — the services above
+      # already listen on the same ports/credentials.
+      DATABASE_URL: postgresql+psycopg://facturia:facturia@localhost:5432/facturia
 
     steps:
       - uses: actions/checkout@v4
@@ -47,14 +59,10 @@ jobs:
 
       - name: Apply migrations
         run: uv run alembic upgrade head
-        env:
-          DATABASE_URL: postgresql+psycopg://facturia:facturia@localhost:5432/facturia
 
       - name: Pytest
         run: uv run pytest
-        env:
-          DATABASE_URL: postgresql+psycopg://facturia:facturia@localhost:5432/facturia
 
-      - name: Extraction evals
+      - name: Pipeline evals
         working-directory: ${{ github.workspace }}
         run: uv run --project backend python evals/run_evals.py --mock
