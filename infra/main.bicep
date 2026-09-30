@@ -25,6 +25,9 @@
 @description('Region for most resources — Document Intelligence/OpenAI already live here (PROGRESS.md).')
 param location string = 'eastus'
 
+@description('Region for PostgreSQL Flexible Server. Separate from `location`: some subscriptions have Flexible Server provisioning restricted per-region (confirmed with `az postgres flexible-server list-skus -l <region>` — eastus was restricted for this subscription, eastus2 is not), independent of whether other resource types are restricted there.')
+param postgresLocation string = 'eastus2'
+
 @description('Region for the Static Web App — only a subset of regions support it (eastus2 is one).')
 param staticWebAppLocation string = 'eastus2'
 
@@ -81,7 +84,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
 
 resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
   name: postgresServerName
-  location: location
+  location: postgresLocation
   sku: { name: 'Standard_B1ms', tier: 'Burstable' }
   properties: {
     version: '16'
