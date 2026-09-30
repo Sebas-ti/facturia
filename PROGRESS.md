@@ -4,11 +4,11 @@
 
 ## Estado actual
 - **Fase:** 1 · Base
-- **Última herramienta usada:** —
-- **Siguiente paso:** Tarea 1.1
+- **Última herramienta usada:** Claude Code
+- **Siguiente paso:** Tarea 1.2
 
 ## Fase 1 · Base (días 1–3)
-- [ ] **1.1 Esqueleto backend:** `backend/` con `uv`, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, sqlalchemy, alembic, psycopg, pytest, ruff, mypy), `app/main.py` con `GET /api/health` y su test.
+- [x] **1.1 Esqueleto backend:** `backend/` con `uv`, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, sqlalchemy, alembic, psycopg, pytest, ruff, mypy), `app/main.py` con `GET /api/health` y su test.
 - [ ] **1.2 Docker Compose:** servicios `db` (Postgres 16) y `azurite`; `.env.example`; `app/config.py` con pydantic-settings.
 - [ ] **1.3 Esquemas Pydantic:** `app/schemas/` con `InvoiceLine`, `BankAccount`, `ExtractedInvoice`, `Finding`, `FindingCode` (enum), `Decision` según spec §3–4. Test: los `esperado` de `data/ground_truth.json` validan contra `ExtractedInvoice` (mapeando nombres de campos).
 - [ ] **1.4 Regla NIT:** `app/rules/nit.py` (`nit_check_digit`, `validate_nit`) con tests, incluidos los NITs de `data/proveedores.csv`.
@@ -23,8 +23,11 @@
 2. Extracción (Doc Intelligence + LLM, evals de extracción) · 3. Grafo LangGraph + human-in-the-loop · 4. Web React · 5. Power Automate + despliegue Azure · 6. Portafolio.
 
 ## Decisiones tomadas
-- (fecha) — decisión — motivo
+- 2026-09-30 — Se agregan los códigos `INVALID_CUFE` (ALTA) e `INCOHERENT_DATES` (MEDIA) a `docs/spec.md` §4.1 — el nodo `validate` (§2.1) ya mencionaba validar CUFE y coherencia de fechas pero la tabla de hallazgos no tenía códigos para esos casos.
+- 2026-09-30 — `backend/pyproject.toml` usa `[tool.uv] package = false` (proyecto de aplicación, no librería instalable) con `app/` como paquete plano en la raíz de `backend/`, en vez del layout `src/` que genera `uv init` por defecto — así coincide con la estructura de AGENTS.md (`backend/app/...`).
+- 2026-09-30 — En esta máquina, `uv run pytest` falla con "Una directiva de Control de aplicaciones bloqueó este archivo" (bloquea `pytest.exe` del venv, no a `ruff`/`mypy`). Workaround: `uv run python -m pytest`. No se cambia el comando en AGENTS.md porque es una política local de Windows, no algo del proyecto.
 
 ## Registro de sesiones
 | Fecha | Herramienta | Hecho | Notas |
 |---|---|---|---|
+| 2026-09-30 | Claude Code | Agregados `INVALID_CUFE`/`INCOHERENT_DATES` a spec §4.1. Tarea 1.1: esqueleto `backend/` con uv, FastAPI, `GET /api/health` + test. | pytest/ruff/mypy en verde. Instalado `uv` (no estaba en la máquina). |
