@@ -5,7 +5,7 @@
 ## Estado actual
 - **Fase:** 1 · Base
 - **Última herramienta usada:** Claude Code
-- **Siguiente paso:** Tarea 1.7
+- **Siguiente paso:** Tarea 1.8
 
 ## Fase 1 · Base (días 1–3)
 - [x] **1.1 Esqueleto backend:** `backend/` con `uv`, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, sqlalchemy, alembic, psycopg, pytest, ruff, mypy), `app/main.py` con `GET /api/health` y su test.
@@ -14,7 +14,7 @@
 - [x] **1.4 Regla NIT:** `app/rules/nit.py` (`nit_check_digit`, `validate_nit`) con tests, incluidos los NITs de `data/proveedores.csv`.
 - [x] **1.5 Regla aritmética:** `app/rules/arithmetic.py` → lista de `Finding` (`ARITHMETIC_ERROR`), tolerancia $1. Test con F10 (falla) y F01 (pasa).
 - [x] **1.6 Reglas de matching y riesgo:** `app/rules/matching.py` (`PRICE_MISMATCH` 2 %, `QTY_EXCEEDS_RECEIPT` acumulado, `MISSING_PO`) y `app/rules/risk.py` (`UNKNOWN_SUPPLIER`, `DUPLICATE_INVOICE`, `BANK_ACCOUNT_CHANGED`). Funciones puras que reciben los datos maestros como parámetros.
-- [ ] **1.7 Decisor:** `app/rules/decision.py` con la matriz de spec §4.2 (incluye `AMOUNT_OVER_THRESHOLD`).
+- [x] **1.7 Decisor:** `app/rules/decision.py` con la matriz de spec §4.2 (incluye `AMOUNT_OVER_THRESHOLD`).
 - [ ] **1.8 Test de integración de reglas:** recorrer F01→F15 de `ground_truth.json` aplicando todas las reglas; debe dar 15/15 en hallazgos y decisión.
 - [ ] **1.9 Base de datos:** modelos SQLAlchemy de spec §5, migración Alembic inicial, `scripts/seed.py` que carga `data/`.
 - [ ] **1.10 CI:** `.github/workflows/ci.yml` con ruff, mypy y pytest.
@@ -38,3 +38,4 @@
 | 2026-09-30 | Claude Code | Tarea 1.4: `app/rules/nit.py` (`nit_check_digit`, `validate_nit`, algoritmo módulo 11). Tests con los 6 NITs de `proveedores.csv`, el NIT comprador de `ground_truth.json`, el caso F11 (DV impreso incorrecto) y validaciones de entrada. | 29/29 tests, ruff y mypy en verde. |
 | 2026-09-30 | Claude Code | Tarea 1.5: `app/rules/arithmetic.py` (`check_arithmetic`, tolerancia $1, un solo `Finding` `ARITHMETIC_ERROR` con todos los mismatches en `evidence`). Extraje el mapeo de `ground_truth.json` a `tests/ground_truth.py` (compartido con `test_schemas.py`). | 35/35 tests, ruff y mypy en verde. |
 | 2026-09-30 | Claude Code | Tarea 1.6: `app/rules/matching.py` (`check_matching`: `MISSING_PO`, `PRICE_MISMATCH` 2 %, `QTY_EXCEEDS_RECEIPT` con cantidad acumulada) y `app/rules/risk.py` (`check_unknown_supplier`, `check_duplicate_invoice`, `check_bank_account_changed`). Nuevos schemas `PurchaseOrder`/`PurchaseOrderLine`/`Supplier`. Loader de datos maestros solo para tests en `tests/master_data.py` (proveedores.csv, ordenes_compra.json, recepciones.csv). | 50/50 tests, ruff y mypy en verde. Casos F01, F07, F08, F09, F12, F13, F14 cubiertos. |
+| 2026-09-30 | Claude Code | Tarea 1.7: `app/rules/decision.py` (`decide`: matriz de spec §4.2; `check_amount_threshold`: genera `AMOUNT_OVER_THRESHOLD` cuando `total` supera el umbral, default $20.000.000). | 61/61 tests, ruff y mypy en verde. |
