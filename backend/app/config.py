@@ -1,9 +1,16 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Absolute path, not "../.env": a relative path is resolved against the
+# current working directory, which breaks whenever something (evals/, a
+# script run from the repo root) doesn't `cd backend` first.
+_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="../.env", env_file_encoding="utf-8", extra="ignore"
+        env_file=_ENV_FILE, env_file_encoding="utf-8", extra="ignore"
     )
 
     app_env: str = "local"
