@@ -39,6 +39,9 @@ cd backend && uv run alembic upgrade head     # aplica migraciones a Postgres
 cd backend && PYTHONPATH=. uv run python scripts/seed.py  # carga data/ a la BD
 uv run --project backend python evals/run_evals.py --mock  # evals sin gastar créditos de Azure
 uv run --project backend python evals/run_evals.py --live --ids F01,F15  # evals con Azure real (gasta créditos; usar --ids)
+cd frontend && npm install                   # dependencias del frontend
+cd frontend && npm run dev                    # servidor de desarrollo (http://localhost:5173)
+cd frontend && npx tsc -b && npm run lint     # typecheck + lint
 ```
 (En Windows, si `psycopg` no encuentra `libpq.dll`, agregar la carpeta `bin` de la instalación de PostgreSQL al PATH.)
 (Actualiza esta sección cuando los comandos cambien.)

@@ -3,9 +3,9 @@
 > Archivo de relevo entre Claude Code y Antigravity. Actualizarlo al terminar cada tarea.
 
 ## Estado actual
-- **Fase:** 3 · Grafo
+- **Fase:** 4 · Web
 - **Última herramienta usada:** Claude Code
-- **Siguiente paso:** Fase 3 completa. Desglosar Fase 4 (Web React) antes de arrancar.
+- **Siguiente paso:** Tarea 4.2
 
 ## Fase 1 · Base (días 1–3)
 - [x] **1.1 Esqueleto backend:** `backend/` con `uv`, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, sqlalchemy, alembic, psycopg, pytest, ruff, mypy), `app/main.py` con `GET /api/health` y su test.
@@ -40,8 +40,19 @@
 - [x] **3.9 Trazas:** cada nodo escribe su fila en `agent_runs`.
 - [x] **3.10 Evals completos:** `evals/run_evals.py` corre el grafo completo contra las 15 facturas y mide también hallazgos/decisión.
 
+## Fase 4 · Web (días 11–15)
+- [x] **4.1 Andamiaje frontend + Landing:** Vite + React + TS + Tailwind + TanStack Query, layout base, modo claro/oscuro. Página `/` (landing): qué hace, diagrama, botón demo, enlaces. Sin API todavía — contenido estático.
+- [ ] **4.2 Subir factura:** `POST /api/invoices` (sube PDF, crea la fila `Invoice`, corre el grafo en segundo plano) + `GET /api/invoices/{id}/events` (SSE) + página `/upload` con drag&drop y progreso en vivo por agente.
+- [ ] **4.3 Bandeja:** `GET /api/invoices` (filtros: status, decision, supplier, paginada) + página `/invoices` (tabla, chips de hallazgos, `BANK_ACCOUNT_CHANGED` arriba con alerta).
+- [ ] **4.4 Detalle:** `GET /api/invoices/{id}` + `GET /api/invoices/{id}/file` (SAS) + página `/invoices/:id` (PDF a la izquierda; campos con semáforo de confianza, comparación vs. OC/recepción, hallazgos, explicación, borrador de correo).
+- [ ] **4.5 Traza:** `GET /api/invoices/{id}/trace` + pestaña de traza en el detalle (línea de tiempo de `agent_runs`).
+- [ ] **4.6 Revisión:** `POST /api/invoices/{id}/review` (retoma el grafo interrumpido con la acción del analista) + página `/review` (cola REVISION, Aprobar/Rechazar + comentario).
+- [ ] **4.7 Dashboard:** `GET /api/metrics` + página `/dashboard` (KPIs, gráfico de decisiones por día, hallazgos frecuentes).
+- [ ] **4.8 Evals:** expone el último reporte de `evals/reports/` + página `/evals`.
+- [ ] **4.9 Datos maestros:** `GET /api/suppliers`, `GET /api/purchase-orders` (lo que falte para completar la comparación del detalle).
+
 ## Fases siguientes (desglosar al llegar)
-4. Web React · 5. Power Automate + despliegue Azure · 6. Portafolio.
+5. Power Automate + despliegue Azure · 6. Portafolio.
 
 ## Decisiones tomadas
 - 2026-09-30 — Se agregan los códigos `INVALID_CUFE` (ALTA) e `INCOHERENT_DATES` (MEDIA) a `docs/spec.md` §4.1 — el nodo `validate` (§2.1) ya mencionaba validar CUFE y coherencia de fechas pero la tabla de hallazgos no tenía códigos para esos casos.
@@ -72,6 +83,10 @@
 - 2026-09-30 — `evals/fixtures.py`: `SCANNED_CONFIDENCE` subió de 0.70 a 0.85. Con 0.70 (una elección mía sin base real, no medida de Azure), F15 disparaba `LOW_CONFIDENCE_EXTRACTION` y pasaba a REVISION, contradiciendo el resultado esperado documentado (F15 = APROBAR, ver spec: el escaneo es difícil para el OCR pero no debe fallar la extracción).
 - 2026-09-30 — `evals/run_evals.py` ahora persiste una fila `Invoice` por factura procesada (para que F09 vea a F01 como duplicado real vía Postgres, no un `set` en memoria) y las borra al terminar (`finally`), porque `AgentRun`/`Invoice.supplier_id` son FK reales — dejarlas rotas bloqueaba `seed()` para cualquier test que corriera después. Se descubrió porque literalmente rompió 18 tests después de la primera corrida completa.
 - 2026-09-30 — `.github/workflows/ci.yml`: agregado el servicio `azurite` (el pipeline completo ahora sube a Blob Storage en `ingest`) y subido `DATABASE_URL` a `env:` de nivel job en vez de repetirlo por paso. Paso renombrado de "Extraction evals" a "Pipeline evals" (ya no es solo extracción).
+- 2026-09-30 — Fase 4 organizada por rebanadas verticales (endpoint + página juntos), no "toda la API primero", decisión explícita del usuario para tener algo visible en el navegador desde temprano.
+- 2026-09-30 — `frontend/`: Vite 8 + React 19 + TS 6 + Tailwind v4 (vía `@tailwindcss/vite`, sin `tailwind.config.js`, todo en `@theme` dentro de `index.css`) + React Router 7 + TanStack Query. Paleta `brand-*` y colores semánticos de decisión (`decision-aprobar/revision/rechazar`) como tokens de tema. Modo oscuro por clase `.dark` en `<html>` (toggle + `localStorage`, no solo `prefers-color-scheme`) vía `@custom-variant dark`. Rutas de las 7 páginas de spec §7 ya armadas en `App.tsx`; solo `/` (Landing) tiene contenido real, el resto usa un componente `ComingSoon` compartido para que la nav no tenga links rotos mientras se construyen en tareas siguientes.
+- 2026-09-30 — `REPO_URL`/`LINKEDIN_URL` en `frontend/src/lib/constants.ts` son placeholders con comentario `TODO(sebastian)` — no tengo esos datos del usuario. Reemplazar antes de publicar.
+- 2026-09-30 — No pude verificar la Landing visualmente en un navegador (este entorno no tiene una herramienta de browser disponible). Verifiqué `tsc -b` y `eslint` en verde, y que Vite transforma cada módulo nuevo sin error 500 (incluido que Tailwind genera CSS real con las clases usadas, tema y modo oscuro incluidos) — evidencia indirecta razonable, pero no reemplaza verlo. Dev server quedó corriendo en `http://localhost:5173` para que el usuario lo revise.
 
 ## Registro de sesiones
 | Fecha | Herramienta | Hecho | Notas |
@@ -103,3 +118,4 @@
 | 2026-09-30 | Claude Code | Tarea 3.8: `app/services/checkpoint.py` (`build_checkpointer`, `PostgresSaver` real con `JsonPlusSerializer(allowed_msgpack_modules=[...])` — sin esto, LangGraph tira warning de deprecación al serializar `Finding`/`ExtractedInvoice`/etc. en el checkpoint, y una versión futura lo va a bloquear). Nuevo nodo `human_review` en `app/graph.py` (tras `decide`): si `decision == REVISION` llama `interrupt()` con el resumen para el analista; si no, no hace nada. `checkpointer` es parámetro opcional de `build_graph`. | 156/156 tests, ruff y mypy en verde. Probado el ciclo completo con el checkpointer real de Postgres: `graph.invoke(...)` pausa (`__interrupt__` presente, `decision` ya en REVISION), `graph.invoke(Command(resume="APROBAR"), config=mismo_thread_id)` retoma y sobreescribe la decisión — en una llamada a `invoke()` **separada**, no solo dentro de la misma (que LangGraph permite incluso sin checkpointer, así que probar solo eso no habría probado la persistencia real). |
 | 2026-09-30 | Claude Code | Tarea 3.9: `app/services/tracing.py` (`traced`, genérico sobre el tipo de estado para evitar un import circular con `app/graph.py`) envuelve cualquier nodo con timing + una fila `AgentRun` (spec §5; `output` serializado a JSON, incluidos modelos Pydantic anidados). `build_graph(..., trace=True)` lo activa, por defecto apagado — `AgentRun.invoice_id` es FK real contra `invoices.id`, así que solo funciona si ya existe la fila `Invoice` (eso lo crea la capa de API en Fase 4; aquí el test crea una fila placeholder a mano para probarlo). Tokens quedan `None` por ahora: los clientes LLM no devuelven uso de tokens todavía. | 157/157 tests, ruff y mypy en verde. Verificadas las 7 filas de `agent_runs` (uno por nodo, incluido `human_review`) para una corrida real contra Postgres/Azurite. |
 | 2026-09-30 | Claude Code | Tarea 3.10: reescrito `evals/run_evals.py` para correr `build_graph()` completo en vez de solo `extract()` — ahora mide también precisión/recall de hallazgos por código y accuracy + matriz de confusión de decisión (spec §9 completo). Persiste cada `Invoice` procesada (necesario para que F09 vea a F01 como duplicado real) y limpia al terminar. Corriendo el grafo completo por primera vez destapó dos correcciones reales de datos (`ground_truth.json` F09, `SCANNED_CONFIDENCE` de F15) y un bug de limpieza que rompía `seed()` para tests posteriores — todo documentado en Decisiones. `.github/workflows/ci.yml` con servicio `azurite` agregado (el pipeline ahora sube a Blob Storage). **Fase 3 completa (10/10 tareas).** | 157/157 tests, ruff y mypy en verde. `evals/run_evals.py --mock` → **15/15 facturas: 100 % en los 18 campos de extracción, 100 % precisión/recall en los 8 códigos de hallazgo que aparecen, 100 % accuracy de decisión (matriz de confusión diagonal perfecta)**. |
+| 2026-09-30 | Claude Code | Desglosada Fase 4 en `PROGRESS.md` (4.1→4.9), por rebanadas verticales (decisión del usuario). Tarea 4.1: `frontend/` desde cero — Vite 8 + React 19 + TS 6 + Tailwind v4 + React Router 7 + TanStack Query, layout con nav y toggle claro/oscuro, rutas de las 7 páginas de spec §7 (solo Landing con contenido real, el resto `ComingSoon`). | `tsc -b` y `eslint .` en verde. No pude verificar la Landing en navegador (sin esa herramienta en este entorno) — sí verifiqué que Vite transforma todos los módulos sin error y que Tailwind genera el CSS esperado. Dev server (`npm run dev`) quedó corriendo en `http://localhost:5173` para que el usuario lo revise. `AGENTS.md` actualizado con los comandos del frontend. |
