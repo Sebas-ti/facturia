@@ -3,7 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from app.rules.nit import nit_check_digit, validate_nit
+from app.rules.nit import check_nit, nit_check_digit, validate_nit
+from app.schemas.finding import FindingCode
+from tests.ground_truth import extracted_invoice
 
 PROVEEDORES_PATH = Path(__file__).parents[3] / "data" / "proveedores.csv"
 
@@ -42,3 +44,15 @@ def test_nit_check_digit_rejects_empty() -> None:
 def test_nit_check_digit_rejects_too_long() -> None:
     with pytest.raises(ValueError, match="1-15 digits"):
         nit_check_digit("1" * 16)
+
+
+def test_check_nit_f01_valid_dv_has_no_finding() -> None:
+    assert check_nit(extracted_invoice("F01")) == []
+
+
+def test_check_nit_f11_wrong_printed_dv_is_invalid_nit_dv() -> None:
+    findings = check_nit(extracted_invoice("F11"))
+    assert [f.code for f in findings] == [FindingCode.INVALID_NIT_DV]
+    assert findings[0].severity == "ALTA"
+    assert findings[0].evidence["dv_impreso"] == 6
+    assert findings[0].evidence["dv_calculado"] == 3
