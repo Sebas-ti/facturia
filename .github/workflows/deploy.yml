@@ -1,0 +1,92 @@
+# Deploys to Azure after CI passes on main (infra/main.bicep, task 5.3, must
+# already be deployed once, manually — this workflow only builds the app and
+# rolls it out, it never provisions infrastructure).
+#
+# One-time setup this workflow assumes (documented here, not automated):
+#   Repo secrets:
+#     AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID  — OIDC login,
+#       an Entra ID app registration with a federated credential for this
+#       repo + AcrPush/Contributor on rg-facturia (no client secret stored).
+#     AZURE_STATIC_WEB_APPS_API_TOKEN — deployment token from the Static Web
+#       App resource (Azure Portal -> "Manage deployment token").
+#     API_KEY — same shared key the Container App's `apiKey` param uses
+#       (docs/spec.md §6, PROGRESS.md 5.1); baked into the frontend build.
+#   Repo variables:
+#     ACR_NAME — the generated registry name (infra/main.bicep's
+#       `acrLoginServer` output, without ".azurecr.io").
+#     CONTAINER_APP_FQDN — the Container App's hostname (`containerAppFqdn`
+#       output), so the frontend build knows where to call the API.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: [completed]
+
+jobs:
+  deploy-backend:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push image (ACR Tasks — no local Docker needed)
+        run: |
+          az acr build \
+            --registry ${{ vars.ACR_NAME }} \
+            --image facturia-api:${{ github.event.workflow_run.head_sha }} \
+            --image facturia-api:latest \
+            backend
+
+      - name: Roll out the new image
+        run: |
+          az containerapp update \
+            --name facturia-api \
+            --resource-group rg-facturia \
+            --image ${{ vars.ACR_NAME }}.azurecr.io/facturia-api:${{ github.event.workflow_run.head_sha }}
+
+  deploy-frontend:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          # Vite inlines VITE_* at build time (frontend/src/lib/api.ts) — the
+          # Static Web App and the Container App are separate origins, so
+          # the relative "/api" default (used locally/in Docker) won't reach it.
+          VITE_API_BASE_URL: https://${{ vars.CONTAINER_APP_FQDN }}/api
+          VITE_API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: frontend/dist
+          skip_app_build: true
