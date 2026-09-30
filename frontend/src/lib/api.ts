@@ -11,7 +11,11 @@ import type {
 import type { PurchaseOrderItem, SupplierItem } from '../types/masterData'
 import type { MetricsResponse } from '../types/metrics'
 
-const API_BASE = '/api'
+// '/api' works when a reverse proxy sits in front of both (Vite's dev proxy,
+// or nginx.conf in Docker Compose). Static Web Apps + Container Apps
+// (infra/main.bicep) are separate origins with no such proxy, so that build
+// sets VITE_API_BASE_URL to the Container App's full URL instead.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api'
 
 // Same shared secret the Power Automate flow uses (docs/spec.md §6) — there's
 // no web login yet, so this endpoint accepts either caller with this one key.
