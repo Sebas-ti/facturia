@@ -1,0 +1,7 @@
+id,nit,dv,razon_social,ciudad,email,banco,tipo_cuenta,cuenta,estado
+P001,900482113,6,Papelería El Cóndor S.A.S.,Bogotá,facturacion@condor-demo.co,Bancolombia,Ahorros,031-458921-77,ACTIVO
+P002,901117654,9,TecnoRed Soluciones S.A.S.,Medellín,cartera@tecnored-demo.co,Davivienda,Corriente,4569-0012-3381,ACTIVO
+P003,800273946,5,Limpieza Total del Valle Ltda.,Cali,fe@limpiezatotal-demo.co,Banco de Bogotá,Corriente,187-22451-9,ACTIVO
+P004,901338820,3,Café Montaña Alta S.A.S.,Manizales,ventas@montanaalta-demo.co,BBVA,Ahorros,0013-0456-7788,ACTIVO
+P005,900915402,1,Transportes Sabana Express S.A.S.,Mosquera,facturas@sabanaexp-demo.co,Banco de Occidente,Corriente,220-88314-2,ACTIVO
+P006,901604587,2,Muebles Nogal Diseño S.A.S.,Bogotá,admin@nogal-demo.co,Bancolombia,Corriente,677-332190-05,ACTIVO

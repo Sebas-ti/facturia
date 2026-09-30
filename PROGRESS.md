@@ -1,0 +1,30 @@
+# PROGRESS — FacturIA
+
+> Archivo de relevo entre Claude Code y Antigravity. Actualizarlo al terminar cada tarea.
+
+## Estado actual
+- **Fase:** 1 · Base
+- **Última herramienta usada:** —
+- **Siguiente paso:** Tarea 1.1
+
+## Fase 1 · Base (días 1–3)
+- [ ] **1.1 Esqueleto backend:** `backend/` con `uv`, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, sqlalchemy, alembic, psycopg, pytest, ruff, mypy), `app/main.py` con `GET /api/health` y su test.
+- [ ] **1.2 Docker Compose:** servicios `db` (Postgres 16) y `azurite`; `.env.example`; `app/config.py` con pydantic-settings.
+- [ ] **1.3 Esquemas Pydantic:** `app/schemas/` con `InvoiceLine`, `BankAccount`, `ExtractedInvoice`, `Finding`, `FindingCode` (enum), `Decision` según spec §3–4. Test: los `esperado` de `data/ground_truth.json` validan contra `ExtractedInvoice` (mapeando nombres de campos).
+- [ ] **1.4 Regla NIT:** `app/rules/nit.py` (`nit_check_digit`, `validate_nit`) con tests, incluidos los NITs de `data/proveedores.csv`.
+- [ ] **1.5 Regla aritmética:** `app/rules/arithmetic.py` → lista de `Finding` (`ARITHMETIC_ERROR`), tolerancia $1. Test con F10 (falla) y F01 (pasa).
+- [ ] **1.6 Reglas de matching y riesgo:** `app/rules/matching.py` (`PRICE_MISMATCH` 2 %, `QTY_EXCEEDS_RECEIPT` acumulado, `MISSING_PO`) y `app/rules/risk.py` (`UNKNOWN_SUPPLIER`, `DUPLICATE_INVOICE`, `BANK_ACCOUNT_CHANGED`). Funciones puras que reciben los datos maestros como parámetros.
+- [ ] **1.7 Decisor:** `app/rules/decision.py` con la matriz de spec §4.2 (incluye `AMOUNT_OVER_THRESHOLD`).
+- [ ] **1.8 Test de integración de reglas:** recorrer F01→F15 de `ground_truth.json` aplicando todas las reglas; debe dar 15/15 en hallazgos y decisión.
+- [ ] **1.9 Base de datos:** modelos SQLAlchemy de spec §5, migración Alembic inicial, `scripts/seed.py` que carga `data/`.
+- [ ] **1.10 CI:** `.github/workflows/ci.yml` con ruff, mypy y pytest.
+
+## Fases siguientes (desglosar al llegar)
+2. Extracción (Doc Intelligence + LLM, evals de extracción) · 3. Grafo LangGraph + human-in-the-loop · 4. Web React · 5. Power Automate + despliegue Azure · 6. Portafolio.
+
+## Decisiones tomadas
+- (fecha) — decisión — motivo
+
+## Registro de sesiones
+| Fecha | Herramienta | Hecho | Notas |
+|---|---|---|---|

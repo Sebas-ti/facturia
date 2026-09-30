@@ -1,0 +1,685 @@
+{
+  "comprador": {
+    "nit": "901555321",
+    "razon_social": "Distribuciones Andinas Demo S.A.S.",
+    "direccion": "Cra 7 # 71-21, Bogotá D.C.",
+    "dv": 1
+  },
+  "reglas": {
+    "tolerancia_precio_pct": 2.0,
+    "tolerancia_total_cop": 1.0,
+    "umbral_aprobacion_automatica_cop": 20000000
+  },
+  "facturas": [
+    {
+      "archivo": "F01_FEPC-1045.pdf",
+      "id": "F01",
+      "esperado": {
+        "proveedor_nit": "900482113",
+        "proveedor_dv_impreso": 6,
+        "proveedor_razon_social": "Papelería El Cóndor S.A.S.",
+        "numero_factura": "FEPC-1045",
+        "fecha_emision": "2026-09-01",
+        "fecha_vencimiento": "2026-10-01",
+        "orden_compra": "OC-2026-0101",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "PAP-001",
+            "descripcion": "Resma papel carta 75g x500",
+            "cantidad": 40,
+            "precio_unitario": 18500,
+            "iva_pct": 19,
+            "subtotal": 740000
+          },
+          {
+            "sku": "PAP-014",
+            "descripcion": "Esfero tinta negra caja x12",
+            "cantidad": 15,
+            "precio_unitario": 14200,
+            "iva_pct": 19,
+            "subtotal": 213000
+          },
+          {
+            "sku": "PAP-022",
+            "descripcion": "Carpeta AZ oficio",
+            "cantidad": 25,
+            "precio_unitario": 9800,
+            "iva_pct": 19,
+            "subtotal": 245000
+          }
+        ],
+        "subtotal": 1198000,
+        "iva": 227620.0,
+        "total": 1425620.0,
+        "cufe": "6fa5c43e655fe3f1375eca910fa8f8ccd7d46fc91bff667b7393fa93a486dac690599748fd2cfa1cba085959e01ff379",
+        "cuenta_bancaria": {
+          "banco": "Bancolombia",
+          "tipo": "Ahorros",
+          "numero": "031-458921-77"
+        }
+      },
+      "decision_esperada": "APROBAR",
+      "hallazgos_esperados": []
+    },
+    {
+      "archivo": "F02_TRS-20871.pdf",
+      "id": "F02",
+      "esperado": {
+        "proveedor_nit": "901117654",
+        "proveedor_dv_impreso": 9,
+        "proveedor_razon_social": "TecnoRed Soluciones S.A.S.",
+        "numero_factura": "TRS-20871",
+        "fecha_emision": "2026-09-02",
+        "fecha_vencimiento": "2026-10-02",
+        "orden_compra": "OC-2026-0102",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "TEC-110",
+            "descripcion": "Portátil 14\" Core i5 16GB RAM",
+            "cantidad": 3,
+            "precio_unitario": 3150000,
+            "iva_pct": 19,
+            "subtotal": 9450000
+          },
+          {
+            "sku": "TEC-205",
+            "descripcion": "Monitor 24\" IPS Full HD",
+            "cantidad": 3,
+            "precio_unitario": 689000,
+            "iva_pct": 19,
+            "subtotal": 2067000
+          },
+          {
+            "sku": "TEC-301",
+            "descripcion": "Base refrigerante para portátil",
+            "cantidad": 3,
+            "precio_unitario": 85000,
+            "iva_pct": 19,
+            "subtotal": 255000
+          }
+        ],
+        "subtotal": 11772000,
+        "iva": 2236680.0,
+        "total": 14008680.0,
+        "cufe": "8f804298681ba51af459ded2c249b547895e5580b4bca165271d77e1d90475f2e1625f7ffb71147592ba175a64b742a6",
+        "cuenta_bancaria": {
+          "banco": "Davivienda",
+          "tipo": "Corriente",
+          "numero": "4569-0012-3381"
+        }
+      },
+      "decision_esperada": "APROBAR",
+      "hallazgos_esperados": []
+    },
+    {
+      "archivo": "F03_CMA-3312.pdf",
+      "id": "F03",
+      "esperado": {
+        "proveedor_nit": "901338820",
+        "proveedor_dv_impreso": 3,
+        "proveedor_razon_social": "Café Montaña Alta S.A.S.",
+        "numero_factura": "CMA-3312",
+        "fecha_emision": "2026-09-03",
+        "fecha_vencimiento": "2026-09-18",
+        "orden_compra": "OC-2026-0103",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "CAF-001",
+            "descripcion": "Café tostado molido 500g",
+            "cantidad": 30,
+            "precio_unitario": 24000,
+            "iva_pct": 5,
+            "subtotal": 720000
+          },
+          {
+            "sku": "CAF-010",
+            "descripcion": "Vasos compostables 9oz x50",
+            "cantidad": 20,
+            "precio_unitario": 11500,
+            "iva_pct": 19,
+            "subtotal": 230000
+          },
+          {
+            "sku": "CAF-020",
+            "descripcion": "Azúcar en sobres x200",
+            "cantidad": 10,
+            "precio_unitario": 16800,
+            "iva_pct": 19,
+            "subtotal": 168000
+          }
+        ],
+        "subtotal": 1118000,
+        "iva": 111620.0,
+        "total": 1229620.0,
+        "cufe": "95e06eaf7d8d7dd300b6a96bfbf0e7fd97d3bc6b8e16bc99834929f13b214a0148d58ca9a28622d66c7f79879e3e94b3",
+        "cuenta_bancaria": {
+          "banco": "BBVA",
+          "tipo": "Ahorros",
+          "numero": "0013-0456-7788"
+        }
+      },
+      "decision_esperada": "APROBAR",
+      "hallazgos_esperados": []
+    },
+    {
+      "archivo": "F04_TSE-7781.pdf",
+      "id": "F04",
+      "esperado": {
+        "proveedor_nit": "900915402",
+        "proveedor_dv_impreso": 1,
+        "proveedor_razon_social": "Transportes Sabana Express S.A.S.",
+        "numero_factura": "TSE-7781",
+        "fecha_emision": "2026-09-04",
+        "fecha_vencimiento": "2026-10-04",
+        "orden_compra": "OC-2026-0104",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "SRV-TR1",
+            "descripcion": "Flete Bogotá-Medellín carga seca (viaje)",
+            "cantidad": 4,
+            "precio_unitario": 1850000,
+            "iva_pct": 19,
+            "subtotal": 7400000
+          },
+          {
+            "sku": "SRV-TR2",
+            "descripcion": "Seguro de carga (por viaje)",
+            "cantidad": 4,
+            "precio_unitario": 95000,
+            "iva_pct": 19,
+            "subtotal": 380000
+          }
+        ],
+        "subtotal": 7780000,
+        "iva": 1478200.0,
+        "total": 9258200.0,
+        "cufe": "f288ca385aa2891c2eb8d3ab0f8b6eed1a0fc96f42550f4b3f07892524478eaa8f43d8c68cf9c4ff15ea74a2dd4cd621",
+        "cuenta_bancaria": {
+          "banco": "Banco de Occidente",
+          "tipo": "Corriente",
+          "numero": "220-88314-2"
+        }
+      },
+      "decision_esperada": "APROBAR",
+      "hallazgos_esperados": []
+    },
+    {
+      "archivo": "F05_MND-0598.pdf",
+      "id": "F05",
+      "esperado": {
+        "proveedor_nit": "901604587",
+        "proveedor_dv_impreso": 2,
+        "proveedor_razon_social": "Muebles Nogal Diseño S.A.S.",
+        "numero_factura": "MND-0598",
+        "fecha_emision": "2026-09-05",
+        "fecha_vencimiento": "2026-10-20",
+        "orden_compra": "OC-2026-0105",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "MUE-007",
+            "descripcion": "Silla ergonómica malla con apoyabrazos",
+            "cantidad": 8,
+            "precio_unitario": 615000,
+            "iva_pct": 19,
+            "subtotal": 4920000
+          },
+          {
+            "sku": "MUE-015",
+            "descripcion": "Escritorio en L 150x120 cm",
+            "cantidad": 4,
+            "precio_unitario": 1290000,
+            "iva_pct": 19,
+            "subtotal": 5160000
+          }
+        ],
+        "subtotal": 10080000,
+        "iva": 1915200.0,
+        "total": 11995200.0,
+        "cufe": "a3b3568134837b93e8c500e83bfb2f5af4e04ca07a459fd0fcd6e28b635f3c4788ed54cb9266fd8edcc1074f649dd6c0",
+        "cuenta_bancaria": {
+          "banco": "Bancolombia",
+          "tipo": "Corriente",
+          "numero": "677-332190-05"
+        }
+      },
+      "decision_esperada": "APROBAR",
+      "hallazgos_esperados": []
+    },
+    {
+      "archivo": "F06_LTV-11420.pdf",
+      "id": "F06",
+      "esperado": {
+        "proveedor_nit": "800273946",
+        "proveedor_dv_impreso": 5,
+        "proveedor_razon_social": "Limpieza Total del Valle Ltda.",
+        "numero_factura": "LTV-11420",
+        "fecha_emision": "2026-09-06",
+        "fecha_vencimiento": "2026-10-06",
+        "orden_compra": "OC-2026-0106",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "LIM-003",
+            "descripcion": "Desinfectante multiusos galón",
+            "cantidad": 12,
+            "precio_unitario": 32500,
+            "iva_pct": 19,
+            "subtotal": 390000
+          },
+          {
+            "sku": "LIM-009",
+            "descripcion": "Toallas de papel interfoliadas x150",
+            "cantidad": 30,
+            "precio_unitario": 7900,
+            "iva_pct": 19,
+            "subtotal": 237000
+          },
+          {
+            "sku": "LIM-012",
+            "descripcion": "Servicio de limpieza profunda oficina (m2)",
+            "cantidad": 180,
+            "precio_unitario": 4200,
+            "iva_pct": 19,
+            "subtotal": 756000
+          }
+        ],
+        "subtotal": 1383000,
+        "iva": 262770.0,
+        "total": 1645770.0,
+        "cufe": "90ea152c038ef428658c4af5dc51176e28c6dd53536b1764f8b8342bc7af4a35ceeb544644c14008702b3288c63bf8e0",
+        "cuenta_bancaria": {
+          "banco": "Banco de Bogotá",
+          "tipo": "Corriente",
+          "numero": "187-22451-9"
+        }
+      },
+      "decision_esperada": "APROBAR",
+      "hallazgos_esperados": []
+    },
+    {
+      "archivo": "F07_TRS-20944.pdf",
+      "id": "F07",
+      "esperado": {
+        "proveedor_nit": "901117654",
+        "proveedor_dv_impreso": 9,
+        "proveedor_razon_social": "TecnoRed Soluciones S.A.S.",
+        "numero_factura": "TRS-20944",
+        "fecha_emision": "2026-09-10",
+        "fecha_vencimiento": "2026-10-10",
+        "orden_compra": "OC-2026-0107",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "TEC-402",
+            "descripcion": "Switch 24 puertos gigabit administrable",
+            "cantidad": 2,
+            "precio_unitario": 1495000,
+            "iva_pct": 19,
+            "subtotal": 2990000
+          },
+          {
+            "sku": "TEC-410",
+            "descripcion": "Patch cord Cat6 2m",
+            "cantidad": 50,
+            "precio_unitario": 9500,
+            "iva_pct": 19,
+            "subtotal": 475000
+          }
+        ],
+        "subtotal": 3465000,
+        "iva": 658350.0,
+        "total": 4123350.0,
+        "cufe": "585b25b4aa6cc55137aba501faa8dcb10283a23eb301acf1334688c4db3c0df61dda356dc197959da1113ef9abe37dd9",
+        "cuenta_bancaria": {
+          "banco": "Davivienda",
+          "tipo": "Corriente",
+          "numero": "4569-0012-3381"
+        }
+      },
+      "decision_esperada": "REVISION",
+      "hallazgos_esperados": [
+        "PRICE_MISMATCH"
+      ]
+    },
+    {
+      "archivo": "F08_FEPC-1071.pdf",
+      "id": "F08",
+      "esperado": {
+        "proveedor_nit": "900482113",
+        "proveedor_dv_impreso": 6,
+        "proveedor_razon_social": "Papelería El Cóndor S.A.S.",
+        "numero_factura": "FEPC-1071",
+        "fecha_emision": "2026-09-11",
+        "fecha_vencimiento": "2026-10-11",
+        "orden_compra": "OC-2026-0108",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "PAP-031",
+            "descripcion": "Tóner compatible impresora láser",
+            "cantidad": 10,
+            "precio_unitario": 145000,
+            "iva_pct": 19,
+            "subtotal": 1450000
+          },
+          {
+            "sku": "PAP-040",
+            "descripcion": "Cuaderno argollado 100 hojas",
+            "cantidad": 30,
+            "precio_unitario": 8900,
+            "iva_pct": 19,
+            "subtotal": 267000
+          }
+        ],
+        "subtotal": 1717000,
+        "iva": 326230.0,
+        "total": 2043230.0,
+        "cufe": "a45a892869e86fb721078ddd2ed3ecdc983031c9748f14dd0f366996ed8dbc3cb56bdc96b83e0ade4461cda1db5c3135",
+        "cuenta_bancaria": {
+          "banco": "Bancolombia",
+          "tipo": "Ahorros",
+          "numero": "031-458921-77"
+        }
+      },
+      "decision_esperada": "REVISION",
+      "hallazgos_esperados": [
+        "QTY_EXCEEDS_RECEIPT"
+      ]
+    },
+    {
+      "archivo": "F09_FEPC-1045.pdf",
+      "id": "F09",
+      "esperado": {
+        "proveedor_nit": "900482113",
+        "proveedor_dv_impreso": 6,
+        "proveedor_razon_social": "Papelería El Cóndor S.A.S.",
+        "numero_factura": "FEPC-1045",
+        "fecha_emision": "2026-09-01",
+        "fecha_vencimiento": "2026-10-01",
+        "orden_compra": "OC-2026-0101",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "PAP-001",
+            "descripcion": "Resma papel carta 75g x500",
+            "cantidad": 40,
+            "precio_unitario": 18500,
+            "iva_pct": 19,
+            "subtotal": 740000
+          },
+          {
+            "sku": "PAP-014",
+            "descripcion": "Esfero tinta negra caja x12",
+            "cantidad": 15,
+            "precio_unitario": 14200,
+            "iva_pct": 19,
+            "subtotal": 213000
+          },
+          {
+            "sku": "PAP-022",
+            "descripcion": "Carpeta AZ oficio",
+            "cantidad": 25,
+            "precio_unitario": 9800,
+            "iva_pct": 19,
+            "subtotal": 245000
+          }
+        ],
+        "subtotal": 1198000,
+        "iva": 227620.0,
+        "total": 1425620.0,
+        "cufe": "6fa5c43e655fe3f1375eca910fa8f8ccd7d46fc91bff667b7393fa93a486dac690599748fd2cfa1cba085959e01ff379",
+        "cuenta_bancaria": {
+          "banco": "Bancolombia",
+          "tipo": "Ahorros",
+          "numero": "031-458921-77"
+        }
+      },
+      "decision_esperada": "RECHAZAR",
+      "hallazgos_esperados": [
+        "DUPLICATE_INVOICE"
+      ]
+    },
+    {
+      "archivo": "F10_LTV-11502.pdf",
+      "id": "F10",
+      "esperado": {
+        "proveedor_nit": "800273946",
+        "proveedor_dv_impreso": 5,
+        "proveedor_razon_social": "Limpieza Total del Valle Ltda.",
+        "numero_factura": "LTV-11502",
+        "fecha_emision": "2026-09-12",
+        "fecha_vencimiento": "2026-10-12",
+        "orden_compra": "OC-2026-0106",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "LIM-003",
+            "descripcion": "Desinfectante multiusos galón",
+            "cantidad": 12,
+            "precio_unitario": 32500,
+            "iva_pct": 19,
+            "subtotal": 390000
+          },
+          {
+            "sku": "LIM-009",
+            "descripcion": "Toallas de papel interfoliadas x150",
+            "cantidad": 30,
+            "precio_unitario": 7900,
+            "iva_pct": 19,
+            "subtotal": 237000
+          }
+        ],
+        "subtotal": 627000,
+        "iva": 141764.7,
+        "total": 746130.0,
+        "cufe": "675180687a22d7b70f4ba82e7af12d1ba6689415cd6c694db6eba693b916e32bc7345447e189271e19ba2cdada9ac336",
+        "cuenta_bancaria": {
+          "banco": "Banco de Bogotá",
+          "tipo": "Corriente",
+          "numero": "187-22451-9"
+        }
+      },
+      "decision_esperada": "RECHAZAR",
+      "hallazgos_esperados": [
+        "ARITHMETIC_ERROR"
+      ]
+    },
+    {
+      "archivo": "F11_CMA-3340.pdf",
+      "id": "F11",
+      "esperado": {
+        "proveedor_nit": "901338820",
+        "proveedor_dv_impreso": 6,
+        "proveedor_razon_social": "Café Montaña Alta S.A.S.",
+        "numero_factura": "CMA-3340",
+        "fecha_emision": "2026-09-14",
+        "fecha_vencimiento": "2026-09-29",
+        "orden_compra": "OC-2026-0110",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "CAF-030",
+            "descripcion": "Máquina de café espresso semiautomática",
+            "cantidad": 1,
+            "precio_unitario": 2350000,
+            "iva_pct": 19,
+            "subtotal": 2350000
+          }
+        ],
+        "subtotal": 2350000,
+        "iva": 446500.0,
+        "total": 2796500.0,
+        "cufe": "197387ce16d23f584027c78184e3170e0acd38737849b4c0924712ec9ad7ee2a0dc04ed9d02fa7272a5b5dc64ab63310",
+        "cuenta_bancaria": {
+          "banco": "BBVA",
+          "tipo": "Ahorros",
+          "numero": "0013-0456-7788"
+        }
+      },
+      "decision_esperada": "REVISION",
+      "hallazgos_esperados": [
+        "INVALID_NIT_DV"
+      ]
+    },
+    {
+      "archivo": "F12_SRX-552.pdf",
+      "id": "F12",
+      "esperado": {
+        "proveedor_nit": "901777045",
+        "proveedor_dv_impreso": 4,
+        "proveedor_razon_social": "Suministros Rápidos XYZ S.A.S.",
+        "numero_factura": "SRX-552",
+        "fecha_emision": "2026-09-15",
+        "fecha_vencimiento": "2026-10-15",
+        "orden_compra": null,
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": null,
+            "descripcion": "Kit de herramientas para mantenimiento",
+            "cantidad": 5,
+            "precio_unitario": 389000,
+            "iva_pct": 19,
+            "subtotal": 1945000
+          }
+        ],
+        "subtotal": 1945000,
+        "iva": 369550.0,
+        "total": 2314550.0,
+        "cufe": "88a2167761b34a332aab0dcd5ca05bc721c18d73d20e0b419a30e2aec386e20cbc7bf2e478588acf00bbf9444e79e167",
+        "cuenta_bancaria": {
+          "banco": "Banco Caja Social",
+          "tipo": "Ahorros",
+          "numero": "2400-1188-73"
+        }
+      },
+      "decision_esperada": "REVISION",
+      "hallazgos_esperados": [
+        "UNKNOWN_SUPPLIER",
+        "MISSING_PO"
+      ]
+    },
+    {
+      "archivo": "F13_MND-0612.pdf",
+      "id": "F13",
+      "esperado": {
+        "proveedor_nit": "901604587",
+        "proveedor_dv_impreso": 2,
+        "proveedor_razon_social": "Muebles Nogal Diseño S.A.S.",
+        "numero_factura": "MND-0612",
+        "fecha_emision": "2026-09-16",
+        "fecha_vencimiento": "2026-10-31",
+        "orden_compra": "OC-2026-0109",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "MUE-021",
+            "descripcion": "Archivador metálico 4 gavetas",
+            "cantidad": 3,
+            "precio_unitario": 980000,
+            "iva_pct": 19,
+            "subtotal": 2940000
+          }
+        ],
+        "subtotal": 2940000,
+        "iva": 558600.0,
+        "total": 3498600.0,
+        "cufe": "d259f639aa92128a77c2254c0a44645937b1e8cb04b7cb1e3b3423a58092239684ce5b16313418a4421db7c653ef8239",
+        "cuenta_bancaria": {
+          "banco": "Nequi Empresas",
+          "tipo": "Ahorros",
+          "numero": "300-555-01-99"
+        }
+      },
+      "decision_esperada": "REVISION",
+      "hallazgos_esperados": [
+        "BANK_ACCOUNT_CHANGED"
+      ]
+    },
+    {
+      "archivo": "F14_TSE-7802.pdf",
+      "id": "F14",
+      "esperado": {
+        "proveedor_nit": "900915402",
+        "proveedor_dv_impreso": 1,
+        "proveedor_razon_social": "Transportes Sabana Express S.A.S.",
+        "numero_factura": "TSE-7802",
+        "fecha_emision": "2026-09-18",
+        "fecha_vencimiento": "2026-10-18",
+        "orden_compra": null,
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": null,
+            "descripcion": "Flete urgente Bogotá-Cali (viaje)",
+            "cantidad": 1,
+            "precio_unitario": 2100000,
+            "iva_pct": 19,
+            "subtotal": 2100000
+          }
+        ],
+        "subtotal": 2100000,
+        "iva": 399000.0,
+        "total": 2499000.0,
+        "cufe": "8e1ea50f884f823b4044a74b259144e2d1d4d54a95444cae5e62a2af5f296785fe86445ede61aa6c3d56c486cd9dd86d",
+        "cuenta_bancaria": {
+          "banco": "Banco de Occidente",
+          "tipo": "Corriente",
+          "numero": "220-88314-2"
+        }
+      },
+      "decision_esperada": "REVISION",
+      "hallazgos_esperados": [
+        "MISSING_PO"
+      ]
+    },
+    {
+      "archivo": "F15_CMA-3355.pdf",
+      "id": "F15",
+      "esperado": {
+        "proveedor_nit": "901338820",
+        "proveedor_dv_impreso": 3,
+        "proveedor_razon_social": "Café Montaña Alta S.A.S.",
+        "numero_factura": "CMA-3355",
+        "fecha_emision": "2026-09-20",
+        "fecha_vencimiento": "2026-10-05",
+        "orden_compra": "OC-2026-0111",
+        "moneda": "COP",
+        "lineas": [
+          {
+            "sku": "CAF-001",
+            "descripcion": "Café tostado molido 500g",
+            "cantidad": 20,
+            "precio_unitario": 24000,
+            "iva_pct": 5,
+            "subtotal": 480000
+          },
+          {
+            "sku": "CAF-040",
+            "descripcion": "Filtros de papel para cafetera x100",
+            "cantidad": 15,
+            "precio_unitario": 6200,
+            "iva_pct": 19,
+            "subtotal": 93000
+          }
+        ],
+        "subtotal": 573000,
+        "iva": 41670.0,
+        "total": 614670.0,
+        "cufe": "9f7e14c8612d8e8e5892329f4eebedbae7621a2a6a3071f3df663311ed33f002dea2237235be0552173569125a158708",
+        "cuenta_bancaria": {
+          "banco": "BBVA",
+          "tipo": "Ahorros",
+          "numero": "0013-0456-7788"
+        }
+      },
+      "decision_esperada": "APROBAR",
+      "hallazgos_esperados": []
+    }
+  ]
+}

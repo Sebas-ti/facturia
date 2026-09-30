@@ -1,0 +1,280 @@
+[
+  {
+    "numero": "OC-2026-0101",
+    "proveedor_id": "P001",
+    "proveedor_nit": "900482113",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "PAP-001",
+        "descripcion": "Resma papel carta 75g x500",
+        "cantidad": 40,
+        "precio_unitario": 18500,
+        "iva_pct": 19
+      },
+      {
+        "sku": "PAP-014",
+        "descripcion": "Esfero tinta negra caja x12",
+        "cantidad": 15,
+        "precio_unitario": 14200,
+        "iva_pct": 19
+      },
+      {
+        "sku": "PAP-022",
+        "descripcion": "Carpeta AZ oficio",
+        "cantidad": 25,
+        "precio_unitario": 9800,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0102",
+    "proveedor_id": "P002",
+    "proveedor_nit": "901117654",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "TEC-110",
+        "descripcion": "Portátil 14\" Core i5 16GB RAM",
+        "cantidad": 3,
+        "precio_unitario": 3150000,
+        "iva_pct": 19
+      },
+      {
+        "sku": "TEC-205",
+        "descripcion": "Monitor 24\" IPS Full HD",
+        "cantidad": 3,
+        "precio_unitario": 689000,
+        "iva_pct": 19
+      },
+      {
+        "sku": "TEC-301",
+        "descripcion": "Base refrigerante para portátil",
+        "cantidad": 3,
+        "precio_unitario": 85000,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0103",
+    "proveedor_id": "P004",
+    "proveedor_nit": "901338820",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "CAF-001",
+        "descripcion": "Café tostado molido 500g",
+        "cantidad": 30,
+        "precio_unitario": 24000,
+        "iva_pct": 5
+      },
+      {
+        "sku": "CAF-010",
+        "descripcion": "Vasos compostables 9oz x50",
+        "cantidad": 20,
+        "precio_unitario": 11500,
+        "iva_pct": 19
+      },
+      {
+        "sku": "CAF-020",
+        "descripcion": "Azúcar en sobres x200",
+        "cantidad": 10,
+        "precio_unitario": 16800,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0104",
+    "proveedor_id": "P005",
+    "proveedor_nit": "900915402",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "SRV-TR1",
+        "descripcion": "Flete Bogotá-Medellín carga seca (viaje)",
+        "cantidad": 4,
+        "precio_unitario": 1850000,
+        "iva_pct": 19
+      },
+      {
+        "sku": "SRV-TR2",
+        "descripcion": "Seguro de carga (por viaje)",
+        "cantidad": 4,
+        "precio_unitario": 95000,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0105",
+    "proveedor_id": "P006",
+    "proveedor_nit": "901604587",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "MUE-007",
+        "descripcion": "Silla ergonómica malla con apoyabrazos",
+        "cantidad": 8,
+        "precio_unitario": 615000,
+        "iva_pct": 19
+      },
+      {
+        "sku": "MUE-015",
+        "descripcion": "Escritorio en L 150x120 cm",
+        "cantidad": 4,
+        "precio_unitario": 1290000,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0106",
+    "proveedor_id": "P003",
+    "proveedor_nit": "800273946",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "LIM-003",
+        "descripcion": "Desinfectante multiusos galón",
+        "cantidad": 24,
+        "precio_unitario": 32500,
+        "iva_pct": 19
+      },
+      {
+        "sku": "LIM-009",
+        "descripcion": "Toallas de papel interfoliadas x150",
+        "cantidad": 60,
+        "precio_unitario": 7900,
+        "iva_pct": 19
+      },
+      {
+        "sku": "LIM-012",
+        "descripcion": "Servicio de limpieza profunda oficina (m2)",
+        "cantidad": 180,
+        "precio_unitario": 4200,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0107",
+    "proveedor_id": "P002",
+    "proveedor_nit": "901117654",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "TEC-402",
+        "descripcion": "Switch 24 puertos gigabit administrable",
+        "cantidad": 2,
+        "precio_unitario": 1420000,
+        "iva_pct": 19
+      },
+      {
+        "sku": "TEC-410",
+        "descripcion": "Patch cord Cat6 2m",
+        "cantidad": 50,
+        "precio_unitario": 9500,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0108",
+    "proveedor_id": "P001",
+    "proveedor_nit": "900482113",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "PAP-031",
+        "descripcion": "Tóner compatible impresora láser",
+        "cantidad": 10,
+        "precio_unitario": 145000,
+        "iva_pct": 19
+      },
+      {
+        "sku": "PAP-040",
+        "descripcion": "Cuaderno argollado 100 hojas",
+        "cantidad": 30,
+        "precio_unitario": 8900,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0109",
+    "proveedor_id": "P006",
+    "proveedor_nit": "901604587",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "MUE-021",
+        "descripcion": "Archivador metálico 4 gavetas",
+        "cantidad": 3,
+        "precio_unitario": 980000,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0110",
+    "proveedor_id": "P004",
+    "proveedor_nit": "901338820",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "CAF-030",
+        "descripcion": "Máquina de café espresso semiautomática",
+        "cantidad": 1,
+        "precio_unitario": 2350000,
+        "iva_pct": 19
+      }
+    ]
+  },
+  {
+    "numero": "OC-2026-0111",
+    "proveedor_id": "P004",
+    "proveedor_nit": "901338820",
+    "fecha": "2026-08-25",
+    "moneda": "COP",
+    "estado": "ABIERTA",
+    "lineas": [
+      {
+        "sku": "CAF-001",
+        "descripcion": "Café tostado molido 500g",
+        "cantidad": 20,
+        "precio_unitario": 24000,
+        "iva_pct": 5
+      },
+      {
+        "sku": "CAF-040",
+        "descripcion": "Filtros de papel para cafetera x100",
+        "cantidad": 15,
+        "precio_unitario": 6200,
+        "iva_pct": 19
+      }
+    ]
+  }
+]
