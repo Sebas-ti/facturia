@@ -43,7 +43,13 @@ class RawInvoiceExtraction(BaseModel):
 
 class LlmResolvedFields(BaseModel):
     """Free-text fields resolved from `full_text` — the only part of `extract`
-    that needs an LLM (or, in mock mode, a stand-in), per docs/spec.md §2.1."""
+    that needs an LLM (or, in mock mode, a stand-in), per docs/spec.md §2.1.
 
-    cufe: str | None
+    CUFE started out here too, but it's a fixed-length hex string, not
+    free text: a live test against real Document Intelligence output showed
+    the LLM mistranscribing it when OCR reading order interleaves unrelated
+    text (a "QR DIAN" label) between the CUFE's two printed lines. Moved to
+    `app.services.normalize.extract_cufe` — mechanical concatenation with a
+    fixed stop length has none of that risk (see PROGRESS.md 2.7)."""
+
     bank_account: BankAccount | None

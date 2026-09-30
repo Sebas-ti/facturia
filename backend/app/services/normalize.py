@@ -14,6 +14,9 @@ _INVOICE_NUMBER_RE = re.compile(r"([A-Z]{2,6})\D{0,3}(\d{3,})")
 _ISO_DATE_RE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
 _SLASH_OR_DASH_DATE_RE = re.compile(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$")
 _NIT_DV_RE = re.compile(r"(\d{6,15})(?:\D+(\d))?\s*$")
+_CUFE_LABEL_RE = re.compile(r"CUFE:?", re.IGNORECASE)
+_HEX_RUN_RE = re.compile(r"[0-9a-f]{4,}")
+CUFE_LENGTH = 96
 
 
 def parse_cop_amount(raw: str) -> Decimal:
@@ -81,3 +84,27 @@ def split_nit_and_dv(raw: str) -> tuple[str, int | None]:
         raise ValueError(f"Could not parse NIT: {raw!r}")
     nit, dv = match.groups()
     return nit, int(dv) if dv is not None else None
+
+
+def extract_cufe(full_text: str) -> str | None:
+    """Find the 96-hex-char CUFE after a "CUFE" label in OCR'd document text.
+
+    Real Document Intelligence output can interleave unrelated text (e.g. a
+    "QR DIAN" label from a nearby QR code box) between the CUFE's two printed
+    lines, since OCR reading order follows page layout, not the field's
+    logical shape. Concatenating lowercase hex runs (case-sensitive: CUFEs
+    are always lowercase, so this also skips uppercase label noise like
+    "DIAN") and stopping at exactly 96 characters sidesteps that reliably,
+    without ever reaching unrelated numbers further down the page.
+    """
+    label_match = _CUFE_LABEL_RE.search(full_text)
+    if label_match is None:
+        return None
+
+    hex_chars = ""
+    for run in _HEX_RUN_RE.finditer(full_text, label_match.end()):
+        hex_chars += run.group()
+        if len(hex_chars) >= CUFE_LENGTH:
+            break
+
+    return hex_chars[:CUFE_LENGTH] if len(hex_chars) >= CUFE_LENGTH else None

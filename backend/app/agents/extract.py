@@ -1,5 +1,5 @@
 """`extract` node (docs/spec.md §2.1): Document Intelligence -> deterministic
-normalization -> LLM (only for CUFE/bank account) -> ExtractedInvoice.
+normalization -> LLM (only for bank account) -> ExtractedInvoice.
 """
 
 from app.schemas.extraction import RawField, RawInvoiceLine
@@ -7,6 +7,7 @@ from app.schemas.invoice import ExtractedInvoice, InvoiceLine
 from app.services.doc_intelligence import DocumentIntelligenceClient
 from app.services.llm import InvoiceLLMClient
 from app.services.normalize import (
+    extract_cufe,
     normalize_invoice_number,
     parse_cop_amount,
     parse_invoice_date,
@@ -43,7 +44,7 @@ def extract(
         subtotal=parse_cop_amount(_required(raw.subtotal, "subtotal")),
         vat_total=parse_cop_amount(_required(raw.vat_total, "vat_total")),
         total=parse_cop_amount(_required(raw.total, "total")),
-        cufe=resolved.cufe,
+        cufe=extract_cufe(raw.full_text),
         bank_account=resolved.bank_account,
     )
 

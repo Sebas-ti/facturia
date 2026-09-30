@@ -1,9 +1,11 @@
+import hashlib
 from datetime import date
 from decimal import Decimal
 
 import pytest
 
 from app.services.normalize import (
+    extract_cufe,
     normalize_invoice_number,
     parse_cop_amount,
     parse_invoice_date,
@@ -85,3 +87,31 @@ def test_split_nit_and_dv(raw: str, expected: tuple[str, int | None]) -> None:
 def test_split_nit_and_dv_rejects_unrecognizable_input() -> None:
     with pytest.raises(ValueError, match="Could not parse NIT"):
         split_nit_and_dv("sin nit")
+
+
+def test_extract_cufe_split_across_two_lines_like_the_generated_pdfs() -> None:
+    cufe = hashlib.sha384(b"FEPC1045").hexdigest()
+    full_text = f"...\nCUFE:\n{cufe[:64]}\n{cufe[64:]}\n..."
+
+    assert extract_cufe(full_text) == cufe
+
+
+def test_extract_cufe_ignores_qr_dian_label_interleaved_by_ocr_reading_order() -> None:
+    """Real Document Intelligence output for F01: the QR code's "QR DIAN"
+    label lands between the CUFE's two lines because of page layout, not the
+    field's logical shape (see PROGRESS.md 2.7)."""
+    cufe = hashlib.sha384(b"FEPC1045").hexdigest()
+    full_text = (
+        f"...\nCUFE:\n: {cufe[:64]}\nQR DIAN\n{cufe[64:]}\n"
+        "Autorización de numeración DIAN No. 18764000000000 (SIMULADA)..."
+    )
+
+    assert extract_cufe(full_text) == cufe
+
+
+def test_extract_cufe_returns_none_when_absent() -> None:
+    assert extract_cufe("factura sin CUFE") is None
+
+
+def test_extract_cufe_returns_none_when_incomplete() -> None:
+    assert extract_cufe(f"CUFE:\n{'a' * 50}") is None

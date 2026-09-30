@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Extraction evals (docs/spec.md §9): runs `extract` over the 15 sample
-invoices (F01 -> F15) and compares the result field-by-field against
-data/ground_truth.json, reporting precision per field.
+"""Extraction evals (docs/spec.md §9): runs `extract` over the sample
+invoices (F01 -> F15 by default) and compares the result field-by-field
+against data/ground_truth.json, reporting precision per field.
 
 Only extraction is evaluated so far — findings/decision evals land with the
-full LangGraph pipeline (Fase 3, see PROGRESS.md). `--mock` is the only mode
-today: there's no real Azure Document Intelligence / OpenAI client yet
-(PROGRESS.md 2.7), and AGENTS.md rule 6 says not to call Azure or read the
-PDFs unless the task requires it.
+full LangGraph pipeline (Fase 3, see PROGRESS.md). `--mock` uses fixtures
+(no Azure calls, no data/facturas/ reads — AGENTS.md rule 6); `--live` calls
+the real Azure Document Intelligence + OpenAI clients and reads the real
+PDFs, which costs money, so use `--ids` to limit the run (e.g. `--ids
+F01,F15`) instead of burning through all 15 invoices by default.
 """
 
 import argparse
@@ -24,11 +25,16 @@ sys.path.insert(0, str(BACKEND_DIR))
 
 from app.agents.extract import extract
 from app.schemas.invoice import InvoiceLine
-from app.services.doc_intelligence import FixtureDocumentIntelligenceClient
-from app.services.llm import MockInvoiceLLMClient
+from app.services.doc_intelligence import (
+    AzureDocumentIntelligenceClient,
+    DocumentIntelligenceClient,
+    FixtureDocumentIntelligenceClient,
+)
+from app.services.llm import AzureInvoiceLLMClient, InvoiceLLMClient, MockInvoiceLLMClient
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 GROUND_TRUTH_PATH = REPO_ROOT / "data" / "ground_truth.json"
+FACTURAS_DIR = REPO_ROOT / "data" / "facturas"
 REPORTS_DIR = Path(__file__).resolve().parent / "reports"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -96,20 +102,34 @@ def _compare_lines(
     return mismatches
 
 
-def run(facturas: list[dict[str, Any]]) -> tuple[dict[str, FieldTally], list[InvoiceResult]]:
+def run(
+    facturas: list[dict[str, Any]], *, live: bool
+) -> tuple[dict[str, FieldTally], list[InvoiceResult]]:
     tallies: dict[str, FieldTally] = {
         name: FieldTally() for name in (*INVOICE_FIELDS, *LINE_FIELDS)
     }
     results: list[InvoiceResult] = []
 
+    llm_client: InvoiceLLMClient = AzureInvoiceLLMClient() if live else MockInvoiceLLMClient()
+    live_doc_client = AzureDocumentIntelligenceClient() if live else None
+
     for factura in facturas:
         expected = expected_invoice(factura)
-        pdf_bytes = factura["id"].encode()  # mock mode never reads data/facturas/, see AGENTS.md rule 6
-        file_hash = hashlib.sha256(pdf_bytes).hexdigest()
-        client = FixtureDocumentIntelligenceClient({file_hash: build_raw_extraction(factura)})
+        doc_client: DocumentIntelligenceClient
+        if live:
+            assert live_doc_client is not None
+            pdf_bytes = (FACTURAS_DIR / factura["archivo"]).read_bytes()
+            doc_client = live_doc_client
+        else:
+            # mock mode never reads data/facturas/ or calls Azure, see AGENTS.md rule 6
+            pdf_bytes = factura["id"].encode()
+            file_hash = hashlib.sha256(pdf_bytes).hexdigest()
+            doc_client = FixtureDocumentIntelligenceClient(
+                {file_hash: build_raw_extraction(factura)}
+            )
 
         try:
-            actual, _field_confidence = extract(pdf_bytes, client, MockInvoiceLLMClient())
+            actual, _field_confidence = extract(pdf_bytes, doc_client, llm_client)
         except (ValueError, KeyError) as exc:
             for name in INVOICE_FIELDS:
                 tallies[name].record(False)
@@ -136,7 +156,14 @@ def run(facturas: list[dict[str, Any]]) -> tuple[dict[str, FieldTally], list[Inv
     return tallies, results
 
 
-def render_report(tallies: dict[str, FieldTally], results: list[InvoiceResult]) -> str:
+def render_report(
+    tallies: dict[str, FieldTally], results: list[InvoiceResult], *, live: bool
+) -> str:
+    mode_note = (
+        "Modo `--live`: Azure Document Intelligence + Azure OpenAI reales."
+        if live
+        else "Modo `--mock`, sin llamadas a Azure."
+    )
     lines = [
         "# Evals de extracción",
         "",
@@ -144,7 +171,7 @@ def render_report(tallies: dict[str, FieldTally], results: list[InvoiceResult]) 
         "",
         (
             "Solo extracción (ver docs/spec.md §9); hallazgos y decisión se evalúan "
-            "cuando exista el grafo completo (Fase 3). Modo `--mock`, sin llamadas a Azure."
+            f"cuando exista el grafo completo (Fase 3). {mode_note}"
         ),
         "",
         "## Precisión por campo",
@@ -172,25 +199,46 @@ def render_report(tallies: dict[str, FieldTally], results: list[InvoiceResult]) 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument(
         "--mock", action="store_true", help="use fixtures instead of real Azure calls"
     )
+    mode.add_argument(
+        "--live",
+        action="store_true",
+        help="call real Azure Document Intelligence + OpenAI (costs money)",
+    )
+    parser.add_argument(
+        "--ids",
+        type=str,
+        default=None,
+        help="comma-separated factura ids to run, e.g. F01,F15 (default: all 15)",
+    )
     args = parser.parse_args()
-
-    if not args.mock:
-        parser.error(
-            "only --mock is supported today; the real Azure client lands in "
-            "PROGRESS.md task 2.7"
-        )
 
     ground_truth = json.loads(GROUND_TRUTH_PATH.read_text(encoding="utf-8"))
     facturas = ground_truth["facturas"]  # already in F01 -> F15 order, see data/README.md
 
-    tallies, results = run(facturas)
+    if args.ids:
+        wanted_ids = set(args.ids.split(","))
+        facturas = [f for f in facturas if f["id"] in wanted_ids]
+        missing = wanted_ids - {f["id"] for f in facturas}
+        if missing:
+            parser.error(f"unknown factura id(s): {', '.join(sorted(missing))}")
 
-    report = render_report(tallies, results)
+    tallies, results = run(facturas, live=args.live)
+
+    report = render_report(tallies, results, live=args.live)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    report_path = REPORTS_DIR / f"{datetime.now(UTC).date().isoformat()}.md"
+    # --live report filenames include the timestamp and the ids run: --live
+    # calls cost real money, so two separate runs on the same day must not
+    # silently overwrite each other's evidence the way same-day --mock runs can.
+    if args.live:
+        ids_suffix = "-" + "-".join(f["id"] for f in facturas) if args.ids else ""
+        stamp = datetime.now(UTC).strftime("%Y-%m-%dT%H%M%SZ")
+        report_path = REPORTS_DIR / f"{stamp}-live{ids_suffix}.md"
+    else:
+        report_path = REPORTS_DIR / f"{datetime.now(UTC).date().isoformat()}.md"
     report_path.write_text(report, encoding="utf-8")
 
     print(report)

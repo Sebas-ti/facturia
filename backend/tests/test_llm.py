@@ -1,5 +1,3 @@
-import hashlib
-
 from app.schemas.extraction import RawField, RawInvoiceExtraction
 from app.services.llm import MockInvoiceLLMClient
 
@@ -21,16 +19,6 @@ def _extraction(full_text: str) -> RawInvoiceExtraction:
     )
 
 
-def test_resolves_cufe_split_across_two_lines_like_the_generated_pdfs() -> None:
-    cufe = hashlib.sha384(b"FEPC1045").hexdigest()
-    full_text = f"...\nCUFE:\n{cufe[:64]}\n{cufe[64:]}\n..."
-    client = MockInvoiceLLMClient()
-
-    resolved = client.resolve(_extraction(full_text))
-
-    assert resolved.cufe == cufe
-
-
 def test_resolves_bank_account_from_consignar_a_line() -> None:
     full_text = (
         "...\nConsignar a: Bancolombia · Cuenta Ahorros No. 031-458921-77 · "
@@ -46,10 +34,9 @@ def test_resolves_bank_account_from_consignar_a_line() -> None:
     assert resolved.bank_account.number == "031-458921-77"
 
 
-def test_returns_none_for_both_fields_when_absent() -> None:
+def test_returns_none_when_absent() -> None:
     client = MockInvoiceLLMClient()
 
     resolved = client.resolve(_extraction("factura sin esos datos"))
 
-    assert resolved.cufe is None
     assert resolved.bank_account is None
