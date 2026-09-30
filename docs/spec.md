@@ -53,7 +53,7 @@ Estado compartido: `InvoiceState` (ver §3). Cada nodo agrega datos y `findings`
 | # | Nodo | Tipo | Qué hace | Salida |
 |---|---|---|---|---|
 | 1 | `ingest` | Código | Calcula SHA-256 del archivo, detecta si es PDF nativo o escaneado, guarda en Blob. | `file_hash`, `is_scanned`, `blob_url` |
-| 2 | `extract` | Doc Intelligence + LLM | `prebuilt-invoice` devuelve campos y confianzas; el LLM normaliza al esquema `ExtractedInvoice` (formato de números colombiano, número de factura `PREFIJO-NUMERO`, fechas ISO, NIT sin DV). | `extracted`, `field_confidence` |
+| 2 | `extract` | Doc Intelligence + código + LLM | `prebuilt-invoice` devuelve campos y confianzas. La normalización de formato (monto colombiano, número de factura `PREFIJO-NUMERO`, fechas ISO, NIT sin DV) es **código determinista** (`app/services/normalize.py`), no LLM — son transformaciones mecánicas, 100 % testeables. El LLM solo interviene para resolver texto libre ambiguo (variaciones de razón social, etiquetas abreviadas del diseño C) al construir `ExtractedInvoice`. | `extracted`, `field_confidence` |
 | 3 | `validate` | Reglas | DV del NIT, aritmética de líneas/subtotal/IVA/total, fechas coherentes, CUFE con 96 caracteres hexadecimales. | findings |
 | 4 | `match` | Reglas | Busca la OC; compara precio unitario (tolerancia 2 %) y cantidad facturada acumulada vs. cantidad recibida. | findings |
 | 5 | `risk` | Reglas + consulta | Proveedor en maestro, factura duplicada (mismo NIT + número o mismo hash), cuenta bancaria distinta a la registrada. | findings |
