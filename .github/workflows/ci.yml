@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: facturia
+          POSTGRES_PASSWORD: facturia
+          POSTGRES_DB: facturia
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U facturia"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Ruff
+        run: uv run ruff check .
+
+      - name: Mypy
+        run: uv run mypy app
+
+      - name: Apply migrations
+        run: uv run alembic upgrade head
+        env:
+          DATABASE_URL: postgresql+psycopg://facturia:facturia@localhost:5432/facturia
+
+      - name: Pytest
+        run: uv run pytest
+        env:
+          DATABASE_URL: postgresql+psycopg://facturia:facturia@localhost:5432/facturia
