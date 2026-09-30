@@ -129,6 +129,8 @@ class InvoiceState(TypedDict):
 |---|---|---|
 | `INVALID_NIT_DV` | ALTA | DV impreso ≠ DV calculado (algoritmo DIAN módulo 11, ver §4.3). |
 | `ARITHMETIC_ERROR` | ALTA | Σ líneas ≠ subtotal, Σ IVA por línea ≠ IVA, o subtotal + IVA ≠ total (tolerancia $1). |
+| `INVALID_CUFE` | ALTA | `cufe` está presente pero no tiene 96 caracteres hexadecimales válidos. |
+| `INCOHERENT_DATES` | MEDIA | `due_date` anterior a `issue_date`, o `issue_date` posterior a la fecha de procesamiento. |
 | `UNKNOWN_SUPPLIER` | ALTA | El NIT no está en `proveedores.csv` o el proveedor no está ACTIVO. |
 | `MISSING_PO` | MEDIA | La factura no referencia una OC o la OC no existe. |
 | `PRICE_MISMATCH` | MEDIA | Precio unitario facturado difiere > 2 % del precio de la OC. |
