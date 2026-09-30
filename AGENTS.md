@@ -37,7 +37,7 @@ cd backend && uv run pytest                  # tests
 cd backend && uv run ruff check . && uv run mypy app
 cd backend && uv run alembic upgrade head     # aplica migraciones a Postgres
 cd backend && PYTHONPATH=. uv run python scripts/seed.py  # carga data/ a la BD
-uv run python evals/run_evals.py --mock      # evals sin gastar créditos de Azure
+uv run --project backend python evals/run_evals.py --mock  # evals sin gastar créditos de Azure
 ```
 (En Windows, si `psycopg` no encuentra `libpq.dll`, agregar la carpeta `bin` de la instalación de PostgreSQL al PATH.)
 (Actualiza esta sección cuando los comandos cambien.)

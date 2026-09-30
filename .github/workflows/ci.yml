@@ -54,3 +54,7 @@ jobs:
         run: uv run pytest
         env:
           DATABASE_URL: postgresql+psycopg://facturia:facturia@localhost:5432/facturia
+
+      - name: Extraction evals
+        working-directory: ${{ github.workspace }}
+        run: uv run --project backend python evals/run_evals.py --mock
