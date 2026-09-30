@@ -16,6 +16,10 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "azure-ai-documentintelligence>=1.0",
     "openai>=1.50",
+    "langgraph>=0.2",
+    "pypdf>=5.0",
+    "azure-storage-blob>=12.20",
+    "langgraph-checkpoint-postgres>=2.0",
 ]
 
 [tool.uv]
