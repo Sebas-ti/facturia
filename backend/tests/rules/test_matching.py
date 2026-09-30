@@ -44,6 +44,30 @@ def test_referenced_po_that_does_not_exist_is_missing_po() -> None:
     assert [f.code for f in findings] == [FindingCode.MISSING_PO]
 
 
+def test_zero_po_price_does_not_raise_and_is_flagged_as_mismatch() -> None:
+    po_number = next(iter(PURCHASE_ORDERS))
+    po = PURCHASE_ORDERS[po_number]
+    sku = po.lines[0].sku
+    free_po = po.model_copy(
+        update={"lines": [line.model_copy(update={"unit_price": Decimal(0)}) for line in po.lines]}
+    )
+    purchase_orders = {**PURCHASE_ORDERS, po_number: free_po}
+
+    invoice = extracted_invoice("F01").model_copy(
+        update={
+            "purchase_order": po_number,
+            "lines": [
+                line.model_copy(update={"unit_price": Decimal(1)})
+                for line in extracted_invoice("F01").lines
+                if line.sku == sku
+            ],
+        }
+    )
+
+    findings = check_matching(invoice, purchase_orders, RECEIVED_QUANTITY)
+    assert FindingCode.PRICE_MISMATCH in [f.code for f in findings]
+
+
 def test_accumulated_quantity_from_previous_invoices_counts() -> None:
     invoice = extracted_invoice("F01")
     previously_invoiced = {("OC-2026-0101", "PAP-001"): Decimal(1)}

@@ -33,7 +33,10 @@ def check_matching(
             continue
         po_line = po_lines_by_sku[line.sku]
 
-        price_diff_pct = abs(line.unit_price - po_line.unit_price) / po_line.unit_price * 100
+        if po_line.unit_price == 0:
+            price_diff_pct = Decimal(0) if line.unit_price == 0 else Decimal(100)
+        else:
+            price_diff_pct = abs(line.unit_price - po_line.unit_price) / po_line.unit_price * 100
         if price_diff_pct > PRICE_TOLERANCE_PCT:
             findings.append(
                 Finding(
