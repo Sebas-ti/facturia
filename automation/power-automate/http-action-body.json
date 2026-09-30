@@ -1,0 +1,23 @@
+{
+  "type": "Http",
+  "inputs": {
+    "method": "POST",
+    "uri": "https://<container-app-fqdn>/api/invoices",
+    "headers": {
+      "X-API-Key": "<api-key>"
+    },
+    "body": {
+      "$content-type": "multipart/form-data",
+      "$multipart": [
+        {
+          "headers": {
+            "Content-Disposition": "form-data; name=\"file\"; filename=\"@{item()?['name']}\"",
+            "Content-Type": "application/pdf"
+          },
+          "body": "@{item()?['contentBytes']}"
+        }
+      ]
+    }
+  },
+  "runAfter": {}
+}
