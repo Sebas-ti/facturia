@@ -49,6 +49,26 @@
 //     --server <acrLoginServer> --identity system
 //   az containerapp update -g rg-facturia -n facturia-api \
 //     --image <acrLoginServer>/facturia-api:bootstrap
+//
+// That `update` only changes `image` — it leaves the bootstrap container's
+// `command`/`args` (python3 -m http.server 8000) in place, so the real
+// image would run that instead of its own Dockerfile CMD. `--command ""
+// --args ""` does NOT clear them (it sets them to a list holding one empty
+// string, which is worse). Strip them for real with a full YAML round-trip,
+// once, right after the `containerapp update` above:
+//
+//   az containerapp show -g rg-facturia -n facturia-api -o yaml > ca.yaml
+//   python3 -c "
+//     import yaml
+//     d = yaml.safe_load(open('ca.yaml'))
+//     for c in d['properties']['template']['containers']:
+//         c.pop('command', None); c.pop('args', None)
+//     yaml.safe_dump(d, open('ca.yaml', 'w'))"
+//   az containerapp update -g rg-facturia -n facturia-api --yaml ca.yaml
+//
+// Not needed again after this: once command/args are gone from the
+// container spec, later `az containerapp update --image ...` calls (task
+// 5.4's CI/CD) don't reintroduce them.
 
 @description('Region for most resources — Document Intelligence/OpenAI already live here (PROGRESS.md).')
 param location string = 'eastus'

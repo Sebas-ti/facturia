@@ -63,6 +63,19 @@ jobs:
             --resource-group rg-facturia \
             --server ${{ vars.ACR_NAME }}.azurecr.io \
             --identity system
+
+          # infra/main.bicep's bootstrap container runs `python3 -m
+          # http.server 8000` via explicit command/args (see its header
+          # comment for why) — `--image` alone never clears those, so the
+          # real image would run that instead of its own Dockerfile CMD.
+          # `--command ""` doesn't clear it either (sets it to a list with
+          # one empty string). Strip both via a full spec round-trip; once
+          # they're gone this is a no-op on every later run.
+          az containerapp show --name facturia-api --resource-group rg-facturia -o json \
+            | jq 'del(.properties.template.containers[].command, .properties.template.containers[].args)' \
+            > containerapp.json
+          az containerapp update --name facturia-api --resource-group rg-facturia --yaml containerapp.json
+
           az containerapp update \
             --name facturia-api \
             --resource-group rg-facturia \
