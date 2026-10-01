@@ -53,6 +53,16 @@ jobs:
 
       - name: Roll out the new image
         run: |
+          # infra/main.bicep deliberately does not configure this registry on
+          # the Container App (it would deadlock the first deploy — see that
+          # file's header comment); setting it here is idempotent, so it's
+          # safe to repeat on every run rather than assume a one-time manual
+          # bootstrap step already did it.
+          az containerapp registry set \
+            --name facturia-api \
+            --resource-group rg-facturia \
+            --server ${{ vars.ACR_NAME }}.azurecr.io \
+            --identity system
           az containerapp update \
             --name facturia-api \
             --resource-group rg-facturia \

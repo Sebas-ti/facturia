@@ -33,14 +33,20 @@
 //      deadlock (confirmed via the Container App's logs in Log Analytics:
 //      repeated 401s from the ACR token exchange endpoint), not a brief,
 //      self-healing race like an earlier version of this comment assumed.
-// A bootstrap image with no registry auth needed breaks that cycle: the
-// Container App succeeds, which lets the role assignment deploy, which
-// grants AcrPull — all in this one deployment. Roll out the real backend
-// afterward (task 5.4's CI/CD does this on every push to main; to do it
-// once by hand right after this deploys):
+//   3. Still failed even once the bootstrap image needed no ACR auth: having
+//      the ACR listed under `configuration.registries` at all makes
+//      Container Apps try to resolve its credentials for every new
+//      revision, regardless of which registry that revision's image
+//      actually comes from — so the same 401 deadlock reproduced even
+//      though nothing was pulling from the ACR yet. There's no
+//      `registries` entry on the Container App below for this reason.
+// Roll out the real backend after this deploys — task 5.4's CI/CD does this
+// on every push to main; to do it once by hand right after this deploys:
 //
 //   az acr build --registry <acrLoginServer, no ".azurecr.io" suffix> \
 //     --image facturia-api:bootstrap backend
+//   az containerapp registry set -g rg-facturia -n facturia-api \
+//     --server <acrLoginServer> --identity system
 //   az containerapp update -g rg-facturia -n facturia-api \
 //     --image <acrLoginServer>/facturia-api:bootstrap
 
@@ -195,9 +201,13 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 8000
         transport: 'http'
       }
-      registries: [
-        { server: acr.properties.loginServer, identity: 'system' }
-      ]
+      // No `registries` entry here on purpose — see the header comment.
+      // Container Apps tries to resolve credentials for every configured
+      // registry when a revision is created, even ones no container in
+      // that revision actually pulls from, so listing the ACR here from
+      // the start reproduces the exact deadlock a bootstrap image without
+      // ACR auth was meant to avoid. Added later with `az containerapp
+      // registry set`, once AcrPull is actually granted.
       secrets: [
         {
           name: 'database-url'
