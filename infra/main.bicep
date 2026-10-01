@@ -11,16 +11,31 @@
 // and a Static Web App for the frontend.
 //
 // This file has only been validated locally with `az bicep build` (syntax +
-// schema check) — it has NOT been deployed against a real subscription.
-// Deploying provisions billable resources; do that deliberately. Every
-// parameter except these two secrets has a workable default:
+// schema check) and `az deployment group what-if` — a real `create` against
+// rg-facturia is what's tracked in PROGRESS.md's Decisiones (including two
+// real bugs it caught: a Postgres API version that didn't support v16, and
+// the subscription's `eastus` region being provisioning-restricted for
+// Flexible Server). Deploying provisions billable resources; do that
+// deliberately.
+//
+// `backendImage` has no default on purpose: an early version pointed it at
+// a public placeholder (`mcr.microsoft.com/k8se/quickstart`), but that image
+// listens on port 80, not the 8000 this template's ingress expects, so the
+// Container App's first revision never passed its health check and timed
+// out ("Operation expired"). Build and push the real image to the ACR this
+// template creates *before* the first deploy — the registry doesn't depend
+// on anything else here, so this can run as soon as the ACR exists (even
+// from a previous partial/failed deployment):
+//
+//   az acr build --registry <acrLoginServer, no ".azurecr.io" suffix> \
+//     --image facturia-api:bootstrap backend
 //
 //   az deployment group create -g rg-facturia -f infra/main.bicep \
-//     --parameters postgresAdminPassword=<secret> apiKey=<secret>
+//     --parameters postgresAdminPassword=<secret> apiKey=<secret> \
+//     --parameters backendImage=<acrLoginServer>/facturia-api:bootstrap
 //
-// The backend image (`backendImage`) defaults to a placeholder — the real
-// one is built and pushed to the ACR created here by the CI/CD workflow
-// (task 5.4), then the Container App is updated to point at it.
+// Task 5.4's CI/CD workflow takes over from there, rebuilding and rolling
+// out a new image on every push to main.
 
 @description('Region for most resources — Document Intelligence/OpenAI already live here (PROGRESS.md).')
 param location string = 'eastus'
@@ -51,8 +66,8 @@ param postgresAdminPassword string
 @description('Shared API key the backend requires on POST /api/invoices (docs/spec.md §6, PROGRESS.md 5.1). No default — must be supplied at deploy time.')
 param apiKey string
 
-@description('Container image the backend Container App runs. Placeholder until task 5.4\'s CI/CD pushes the real one to the ACR created here.')
-param backendImage string = 'mcr.microsoft.com/k8se/quickstart:latest'
+@description('Container image the backend Container App runs — build and push it to the ACR this template creates before the first deploy (see header comment). No default: a public placeholder listening on the wrong port is what caused the first real deploy of this template to fail.')
+param backendImage string
 
 @description('Container App min replicas. 0 scales to zero between demo visits (cold start on the next request) to save cost — set to 1 to avoid that for a live demo/interview.')
 @minValue(0)
