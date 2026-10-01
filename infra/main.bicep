@@ -18,24 +18,31 @@
 // Flexible Server). Deploying provisions billable resources; do that
 // deliberately.
 //
-// `backendImage` has no default on purpose: an early version pointed it at
-// a public placeholder (`mcr.microsoft.com/k8se/quickstart`), but that image
-// listens on port 80, not the 8000 this template's ingress expects, so the
-// Container App's first revision never passed its health check and timed
-// out ("Operation expired"). Build and push the real image to the ACR this
-// template creates *before* the first deploy — the registry doesn't depend
-// on anything else here, so this can run as soon as the ACR exists (even
-// from a previous partial/failed deployment):
+// The Container App always starts on a public bootstrap image (python's
+// stdlib http.server — no backendImage parameter, see below) instead of the
+// real backend, and deliberately *not* from the ACR this template creates.
+// Two real deploy failures led here:
+//   1. A public placeholder (`mcr.microsoft.com/k8se/quickstart`) listens on
+//      port 80, not the 8000 this template's ingress expects — the revision
+//      never passed its health check ("Operation expired").
+//   2. Pointing the first revision at a real image in the ACR instead: the
+//      Container App needs `AcrPull` via its own managed identity to pull
+//      it, but that role assignment (below) depends on the Container App's
+//      principalId, which only exists once the Container App itself
+//      succeeds — and it can't succeed without the pull working. A genuine
+//      deadlock (confirmed via the Container App's logs in Log Analytics:
+//      repeated 401s from the ACR token exchange endpoint), not a brief,
+//      self-healing race like an earlier version of this comment assumed.
+// A bootstrap image with no registry auth needed breaks that cycle: the
+// Container App succeeds, which lets the role assignment deploy, which
+// grants AcrPull — all in this one deployment. Roll out the real backend
+// afterward (task 5.4's CI/CD does this on every push to main; to do it
+// once by hand right after this deploys):
 //
 //   az acr build --registry <acrLoginServer, no ".azurecr.io" suffix> \
 //     --image facturia-api:bootstrap backend
-//
-//   az deployment group create -g rg-facturia -f infra/main.bicep \
-//     --parameters postgresAdminPassword=<secret> apiKey=<secret> \
-//     --parameters backendImage=<acrLoginServer>/facturia-api:bootstrap
-//
-// Task 5.4's CI/CD workflow takes over from there, rebuilding and rolling
-// out a new image on every push to main.
+//   az containerapp update -g rg-facturia -n facturia-api \
+//     --image <acrLoginServer>/facturia-api:bootstrap
 
 @description('Region for most resources — Document Intelligence/OpenAI already live here (PROGRESS.md).')
 param location string = 'eastus'
@@ -65,9 +72,6 @@ param postgresAdminPassword string
 @secure()
 @description('Shared API key the backend requires on POST /api/invoices (docs/spec.md §6, PROGRESS.md 5.1). No default — must be supplied at deploy time.')
 param apiKey string
-
-@description('Container image the backend Container App runs — build and push it to the ACR this template creates before the first deploy (see header comment). No default: a public placeholder listening on the wrong port is what caused the first real deploy of this template to fail.')
-param backendImage string
 
 @description('Container App min replicas. 0 scales to zero between demo visits (cold start on the next request) to save cost — set to 1 to avoid that for a live demo/interview.')
 @minValue(0)
@@ -212,7 +216,11 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'api'
-          image: backendImage
+          // Public bootstrap image (no ACR auth needed) — see the header
+          // comment for why, and how to roll out the real backend after.
+          image: 'docker.io/library/python:3.12-slim'
+          command: ['python3']
+          args: ['-m', 'http.server', '8000']
           resources: { cpu: json('0.5'), memory: '1Gi' }
           env: [
             { name: 'APP_ENV', value: 'production' }
@@ -233,12 +241,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
-// Grants the Container App's managed identity pull access to the ACR.
-// Bicep deploys the Container App before this (it depends on the app's
-// principalId), so the very first image pull can race the role assignment
-// and fail once — Container Apps retries automatically and the next
-// reconciliation succeeds once the role is in place. This is the same
-// ordering trade-off Microsoft's own quickstarts accept for this pattern.
+// Grants the Container App's managed identity pull access to the ACR, so
+// `az containerapp update --image <acr>/...` (see header comment) works
+// once this deployment finishes. Only reachable because the Container App
+// above no longer needs this role to succeed itself (see header comment).
 resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(acr.id, containerApp.id, 'AcrPull')
   scope: acr

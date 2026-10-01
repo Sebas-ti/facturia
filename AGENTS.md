@@ -45,8 +45,8 @@ cd frontend && npm install                   # dependencias del frontend
 cd frontend && npm run dev                    # servidor de desarrollo (http://localhost:5173)
 cd frontend && npx tsc -b && npm run lint     # typecheck + lint
 az bicep build --file infra/main.bicep       # valida sintaxis/esquema del template (no despliega nada)
-az acr build --registry <acrLoginServer-sin-sufijo> --image facturia-api:bootstrap backend  # imagen real al ACR antes del primer deploy (ver infra/main.bicep)
-az deployment group create -g rg-facturia -f infra/main.bicep --parameters postgresAdminPassword=<secreto> apiKey=<secreto> backendImage=<acrLoginServer>/facturia-api:bootstrap  # aprovisiona Azure real, cuesta dinero — correrlo a propósito
+az deployment group create -g rg-facturia -f infra/main.bicep --parameters postgresAdminPassword=<secreto> apiKey=<secreto>  # aprovisiona Azure real, cuesta dinero — correrlo a propósito (arranca con un bootstrap público, ver infra/main.bicep)
+az acr build --registry <acrLoginServer-sin-sufijo> --image facturia-api:bootstrap backend && az containerapp update -g rg-facturia -n facturia-api --image <acrLoginServer>/facturia-api:bootstrap  # recién después del deploy anterior
 ```
 (En Windows, si `psycopg` no encuentra `libpq.dll`, agregar la carpeta `bin` de la instalación de PostgreSQL al PATH.)
 (Actualiza esta sección cuando los comandos cambien.)
