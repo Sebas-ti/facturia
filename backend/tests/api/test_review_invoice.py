@@ -17,6 +17,21 @@ from app.main import app
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def no_real_graph_resume(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`review_invoice` calls the real `_resume_graph` (real Azure clients,
+    real LangGraph checkpointer) unless a test opts out — most of these
+    tests only care about the DB side (Review row, Invoice.decision), not
+    the graph resume itself (that's covered by `test_graph.py`'s real,
+    local pipeline and by `test_review_invoice_calls_resume_graph` below).
+    With no Azure credentials in this env, the real call fails fast
+    locally (caught and logged by `_resume_graph`'s own try/except) but
+    was observed hanging for 20+ minutes in GitHub Actions' CI — a real
+    network client with an empty endpoint behaves very differently with
+    real internet egress than it does locally."""
+    monkeypatch.setattr("app.api.invoices._resume_graph", lambda *args, **kwargs: None)
+
+
 @pytest.fixture
 def db() -> Generator[Session, None, None]:
     created_ids: list[str] = []
